@@ -18,6 +18,8 @@
         public const string TextBoxConnected = "CROWCONTROL_TEXTBOX_CONNECTED";
         public const string TextBoxDisconnected = "CROWCONTROL_TEXTBOX_DISCONNECTED";
 
+        public const string CommandSettings = "CROWCONTROL_COMMAND_SETTINGS";
+
         //Command Options
         //DIE
         public const string Die = "DIE";

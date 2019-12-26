@@ -43,3 +43,4 @@ F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.csproj.CopyComplete
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.dll
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.pdb
+F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\bin\Debug\Graphics\Atlases\Gui\emoji\crowboy.png

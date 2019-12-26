@@ -22,3 +22,4 @@ CROWCONTROL_TEXTBOX_CONNECTED=
 	:crowboy: You have been {# 00FF00}connected{#}!
 CROWCONTROL_TEXTBOX_DISCONNECTED=
 	:crowboy: You have been {# FF0000}disconnected{#}!
+CROWCONTROL_COMMAND_SETTINGS= Command Settings

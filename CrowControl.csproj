@@ -103,7 +103,9 @@
     <Content Include="Dialog\English.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Graphics\Atlases\Gui\emoji\crowboy.png" />
+    <Content Include="Graphics\Atlases\Gui\emoji\crowboy.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -24,6 +24,8 @@ namespace Celeste.Mod.CrowControl
         private bool spawnKevin = false;
         private bool disableCommands = false;
         private int effectTime;
+        private bool inCredits = false;
+        private bool ascending = false;
 
         private InfoPanel infoPanel;
 
@@ -41,10 +43,13 @@ namespace Celeste.Mod.CrowControl
         private BirdNPC birdy = null;
         private Color birdColor = new Color(255, 255, 255);
 
+        private static MiniTextbox currentMiniTextBox;
+
         private bool extendedPathfinder = false;
         private List<Seeker> spawnedSeekers = new List<Seeker>();
         private List<Snowball> spawnedSnowballs = new List<Snowball>();
         private List<AngryOshiro> spawnedOshiros = new List<AngryOshiro>();
+
 
         public CrowControlModule()
         {
@@ -101,6 +106,84 @@ namespace Celeste.Mod.CrowControl
             On.Celeste.Player.IntroRespawnEnd += Player_IntroRespawnEnd;
             Everest.Events.Level.OnExit += Level_OnExit;
             IL.Celeste.Pathfinder.ctor += ModPathfinderConstructor;
+            IL.Celeste.MiniTextbox.Render += centerHook;
+            On.Celeste.CS07_Credits.Added += CS07_Credits_Added;
+            On.Celeste.CS08_Ending.OnEnd += CS08_Ending_OnEnd;
+            On.Celeste.CS07_Ascend.OnBegin += CS07_Ascend_OnBegin;
+            On.Celeste.Player.SummitLaunch += Player_SummitLaunch;
+        }
+
+        private void Player_SummitLaunch(On.Celeste.Player.orig_SummitLaunch orig, Player self, float targetX)
+        {
+            ascending = true;
+            orig(self, targetX);
+        }
+
+        private void CS07_Ascend_OnBegin(On.Celeste.CS07_Ascend.orig_OnBegin orig, CS07_Ascend self, Level level)
+        {
+            ascending = true;
+            orig(self, level);
+        }
+
+        private void CS08_Ending_OnEnd(On.Celeste.CS08_Ending.orig_OnEnd orig, CS08_Ending self, Level level)
+        {
+            inCredits = false;
+            orig(self, level);
+        }
+
+        private void CS07_Credits_Added(On.Celeste.CS07_Credits.orig_Added orig, CS07_Credits self, Monocle.Scene scene)
+        {
+            inCredits = true;
+            orig(self, scene);
+        }
+
+        private static bool Centered = true;
+
+        private void centerHook(ILContext il)
+        {
+            ILCursor cursor = new ILCursor(il);
+
+            if (cursor.TryGotoNext(MoveType.After,
+                instr => instr.MatchLdfld<Vector2>("X"),
+                instr => instr.MatchLdarg(0),
+                instr => instr.MatchLdfld<MiniTextbox>("portraitSize")))
+            {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Func<float, MiniTextbox, float>>(modPosition);
+            }
+
+            if (cursor.TryGotoNext(
+                instr => instr.MatchLdcR4(0),
+                instr => instr.MatchLdcR4(0.5f)))
+            {
+                cursor.Index++;
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Func<float, MiniTextbox, float>>(modJustify);
+            }
+        }
+
+        private static float modJustify(float vanilla, MiniTextbox self)
+        {
+            if (self == currentMiniTextBox)
+            {
+                return Centered ? 0.5f : vanilla;
+            }
+            else 
+            {
+                return vanilla;
+            }
+        }
+
+        private static float modPosition(float vanilla, MiniTextbox self)
+        {
+            if (self == currentMiniTextBox)
+            {
+                return Centered ? 796f : vanilla;
+            }
+            else 
+            {
+                return vanilla;
+            }
         }
 
         public void ChangeTimerIntervals() 
@@ -125,6 +208,10 @@ namespace Celeste.Mod.CrowControl
         private void Level_NextLevel(On.Celeste.Level.orig_NextLevel orig, Level self, Vector2 at, Vector2 dir)
         {
             spawnedSeekers.Clear();
+            spawnedSnowballs.Clear();
+            spawnedOshiros.Clear();
+
+            ascending = false;
 
             orig(self, at, dir);
         }
@@ -141,6 +228,16 @@ namespace Celeste.Mod.CrowControl
             {
                 seekerSpawnTimer.Stop();
                 seekerSpawnTimer.Start();
+            }
+
+            if (spawnedSnowballs.Count >= 1) 
+            {
+                SpawnSnowball(false);
+            }
+
+            if (spawnedOshiros.Count >= 1) 
+            {
+                SpawnOshiro(false);
             }
 
             orig(self);
@@ -375,7 +472,7 @@ namespace Celeste.Mod.CrowControl
                 spawnKevin = false;
             }
 
-            if (newLevel.Entities.AmountOf<PlayerSeeker>() > 0)
+            if (newLevel.Entities.AmountOf<PlayerSeeker>() > 0 || inCredits || ascending)
             {
                 disableCommands = true;
             }
@@ -588,25 +685,44 @@ namespace Celeste.Mod.CrowControl
         {
             BirdCaw();
 
-            if (currentLevel == null) 
+            SpawnOshiro(true);
+        }
+
+        private void SpawnOshiro(bool addToList) 
+        {
+            if (currentLevel == null)
             {
                 return;
             }
 
             Vector2 position = new Vector2(currentLevel.Bounds.Left - 32, currentLevel.Bounds.Top + currentLevel.Bounds.Height / 2);
-            currentLevel.Add(new AngryOshiro(position, false));
+            AngryOshiro oshiro = new AngryOshiro(position, false);
+            if (addToList) 
+            {
+                spawnedOshiros.Add(oshiro);
+            }
+            currentLevel.Add(oshiro);
         }
 
         private void SnowballAction() 
         {
             BirdCaw();
 
-            if (currentLevel == null) 
+            SpawnSnowball(true);
+        }
+
+        private void SpawnSnowball(bool addToList) 
+        {
+            if (currentLevel == null)
             {
                 return;
             }
 
             Snowball snowball = new Snowball();
+            if (addToList) 
+            {
+                spawnedSnowballs.Add(snowball);
+            }
             currentLevel.Add(snowball);
 
             snowball.X = currentLevel.Camera.Left - 60f;
@@ -893,7 +1009,8 @@ namespace Celeste.Mod.CrowControl
             Audio.Play(SFX.ui_main_message_confirm);
             if (currentLevel != null) 
             {
-                currentLevel.Add(new MiniTextbox(DialogIds.TextBoxConnected));
+                currentMiniTextBox = new MiniTextbox(DialogIds.TextBoxConnected);
+                currentLevel.Add(currentMiniTextBox);
             }
         }
 
@@ -902,7 +1019,8 @@ namespace Celeste.Mod.CrowControl
             Audio.Play(SFX.ui_main_message_confirm);
             if (currentLevel != null)
             {
-                currentLevel.Add(new MiniTextbox(DialogIds.TextBoxDisconnected));
+                currentMiniTextBox = new MiniTextbox(DialogIds.TextBoxDisconnected);
+                currentLevel.Add(currentMiniTextBox);
             }
         }
 

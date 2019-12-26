@@ -3,6 +3,7 @@ using YamlDotNet.Serialization;
 using WebSocketSharp;
 using System.Threading;
 using Celeste.Mod.UI;
+using Monocle;
 
 namespace Celeste.Mod.CrowControl
 {
@@ -25,7 +26,7 @@ namespace Celeste.Mod.CrowControl
         [YamlIgnore] [SettingIgnore] public bool Connected { get; set; } = false;
         [YamlIgnore] [SettingIgnore] public int TotalRequests { get; set; } = 0;
 
-        //Command options
+        //command options
         //DIE
         [SettingName(DialogIds.Die)] public bool Die { get; set; } = true;
         [SettingRange(1, 100)] [SettingName(DialogIds.DieVoteLimit)] public int DieVoteLimit { get; set; } = 10;
@@ -129,9 +130,11 @@ namespace Celeste.Mod.CrowControl
             {
                 textMenu.Add(new TextMenu.Button(DialogIds.ChannelName + ": " + ChannelName).Pressed(() =>
                 {
+                    string channelNameLower = ChannelName.ToLower();
+
                     textMenu.SceneAs<Overworld>().Goto<OuiModOptionString>().Init<OuiModOptions>(
-                        ChannelName,
-                        v => ChannelName = v,
+                        channelNameLower,
+                        v => channelNameLower = v,
                         maxValueLength: 30
                         );
                 }));
