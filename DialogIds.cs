@@ -22,8 +22,8 @@
 
         //Command Options
         //DIE
-        public const string Die = "DIE";
-        public const string DieVoteLimit = "DIE_VOTE_LIMIT";
+        public const string Die = "CROWCONTROL_OPTIONS_DIE";
+        public const string DieVoteLimit = "CROWCONTROL_OPTIONS_DIE_VOTE_LIMIT";
 
         //BLUR
         public const string Blur = "BLUR";
@@ -37,6 +37,7 @@
         //SEEKER
         public const string Seeker = "SEEKER";
         public const string SeekerVoteLimit = "SEEKER_VOTE_LIMIT";
+        public const string ShowSeekerNames = "SHOW_SEEKER_NAMES";
 
         //MIRROR
         public const string Mirror = "MIRROR";
@@ -77,5 +78,9 @@
         //GODMODE
         public const string GodMode = "GOD_MODE";
         public const string GodModeVoteLimit = "GOD_MODE_VOTE_LIMIT";
+
+        //FISH
+        public const string Fish = "FISH";
+        public const string FishVoteLimit = "FISH_VOTE_LIMIT";
     }
 }

@@ -76,9 +76,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\SeekerName.cs" />
     <Compile Include="CrowControlModule.cs" />
     <Compile Include="CrowControlSettings.cs" />
     <Compile Include="DialogIds.cs" />
+    <Compile Include="Helpers\ActionHelper.cs" />
+    <Compile Include="Helpers\SpawnHelper.cs" />
+    <Compile Include="Helpers\TimerHelper.cs" />
     <Compile Include="InfoPanel.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -98,6 +102,10 @@
     <Compile Include="TwitchLib\Tags.cs" />
     <Compile Include="TwitchLib\TwitchLibMessage.cs" />
     <Compile Include="TwitchLib\UserType.cs" />
+    <Compile Include="UI\AbstractMenu.cs" />
+    <Compile Include="UI\OuiCrowControlSubmenu.cs" />
+    <Compile Include="UI\TextMenuExt.cs" />
+    <Compile Include="UI\TextMenuOptionExt.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Dialog\English.txt">

@@ -37,10 +37,10 @@ F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\CrowControl\obj\Debug\
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\CrowControl\obj\Debug\CrowControl.dll
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\CrowControl\obj\Debug\CrowControl.pdb
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\bin\Debug\Dialog\English.txt
+F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\bin\Debug\Graphics\Atlases\Gui\emoji\crowboy.png
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\bin\Debug\CrowControl.dll
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\bin\Debug\CrowControl.pdb
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.csprojAssemblyReference.cache
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.csproj.CopyComplete
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.dll
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.pdb
-F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\bin\Debug\Graphics\Atlases\Gui\emoji\crowboy.png

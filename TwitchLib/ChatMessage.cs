@@ -353,6 +353,10 @@ namespace Celeste.Mod.CrowControl
             {
                 return MessageType.GODMODE;
             }
+            else if (command.IndexOf("fish", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return MessageType.FISH;
+            }
             else if (command.IndexOf("archie", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 return MessageType.ARCHIE;

@@ -23,31 +23,34 @@ namespace Celeste.Mod.CrowControl
         [SettingName(DialogIds.Connect)] public string Connect { get; set; } = "";
         [SettingName(DialogIds.Disconnect)] public string Disconnect { get; set; } = "";
 
+        [SettingName(DialogIds.CommandSettings)] public string CommandSettings { get; set; }
+
         [YamlIgnore] [SettingIgnore] public bool Connected { get; set; } = false;
         [YamlIgnore] [SettingIgnore] public int TotalRequests { get; set; } = 0;
 
         //command options
         //DIE
-        [SettingName(DialogIds.Die)] public bool Die { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.DieVoteLimit)] public int DieVoteLimit { get; set; } = 10;
+        [SettingIgnore] public bool Die { get; set; } = true;
+        [SettingIgnore] public int DieVoteLimit { get; set; } = 10;
         [YamlIgnore] [SettingIgnore] public int CurrentDieVote { get; set; } = 0;
 
         //BLUR
-        [SettingName(DialogIds.Blur)] public bool Blur { get; set; } = true;
-        [SettingIgnore][YamlIgnore] [SettingName(DialogIds.BlurLevel)] public int BlurLevel { get; set; } = 1;
-        [SettingRange(1, 100)] [SettingName(DialogIds.BlurVoteLimit)] public int BlurVoteLimit { get; set; } = 8;
+        [SettingIgnore] public bool Blur { get; set; } = true;
+        [SettingIgnore] public int BlurVoteLimit { get; set; } = 8;
+        [YamlIgnore] [SettingIgnore][SettingName(DialogIds.BlurLevel)] public int BlurLevel { get; set; } = 1;
         [YamlIgnore] [SettingIgnore] public int CurrentBlurVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool BlurEnabled { get; set; } = false;
 
         //BUMP
-        [SettingName(DialogIds.Bump)] public bool Bump { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.BumpVoteLimit)] public int BumpVoteLimit { get; set; } = 1;
+        [SettingIgnore] public bool Bump { get; set; } = true;
+        [SettingIgnore] public int BumpVoteLimit { get; set; } = 1;
         [YamlIgnore] [SettingIgnore] public int CurrentBumpVote { get; set; } = 0;
 
         //SEEKER
         [SettingName(DialogIds.Seeker)] public bool Seeker { get; set; } = true;
         [SettingRange(1, 100)] [SettingName(DialogIds.SeekerVoteLimit)] public int SeekerVoteLimit { get; set; } = 1;
         [YamlIgnore] [SettingIgnore] public int CurrentSeekerVote { get; set; } = 0;
+        [SettingName(DialogIds.ShowSeekerNames)] public bool ShowSeekerNames { get; set; } = true;
 
         //MIRROR
         [SettingName(DialogIds.Mirror)] public bool Mirror { get; set; } = true;
@@ -105,6 +108,11 @@ namespace Celeste.Mod.CrowControl
         [YamlIgnore] [SettingIgnore] public int CurrentGodModeVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool GodModeEnabled { get; set; } = false;
 
+        //FISH
+        [SettingName(DialogIds.Fish)] public bool Fish { get; set; } = true;
+        [SettingRange(1, 100)] [SettingName(DialogIds.FishVoteLimit)] public int FishVoteLimit { get; set; } = 1;
+        [YamlIgnore] [SettingIgnore] public int CurrentFishVote { get; set; } = 0;
+
         //ARCHIE
         [YamlIgnore] [SettingIgnore] public bool ArchieEnabled { get; set; } = false;
         [YamlIgnore] [SettingIgnore] public string TwitchUsername { get; private set; } = "justinfan";
@@ -118,10 +126,9 @@ namespace Celeste.Mod.CrowControl
             TwitchUsername += randNum;
         }
 
-        //TODO: FIX THIS
         public void EffectTimeChange()
         {
-            CrowControlModule.ChangeTimerIntervals();
+            CrowControlModule.GetTimerHelper().ChangeTimerIntervals();
         }
 
         public void CreateChannelNameEntry(TextMenu textMenu, bool inGame) 
@@ -130,11 +137,9 @@ namespace Celeste.Mod.CrowControl
             {
                 textMenu.Add(new TextMenu.Button(DialogIds.ChannelName + ": " + ChannelName).Pressed(() =>
                 {
-                    string channelNameLower = ChannelName.ToLower();
-
                     textMenu.SceneAs<Overworld>().Goto<OuiModOptionString>().Init<OuiModOptions>(
-                        channelNameLower,
-                        v => channelNameLower = v,
+                        ChannelName,
+                        v => ChannelName = v,
                         maxValueLength: 30
                         );
                 }));
@@ -161,6 +166,14 @@ namespace Celeste.Mod.CrowControl
                 {
                     StopThread();
                 }
+            }));
+        }
+
+        public void CreateCommandSettingsEntry(TextMenu textMenu, bool inGame) 
+        {
+            textMenu.Add(new TextMenu.Button(DialogIds.CommandSettings).Pressed(() =>
+            {
+                OuiModOptions.Instance.Overworld.Goto<OuiCrowControlSubmenu>();
             }));
         }
 
@@ -194,7 +207,7 @@ namespace Celeste.Mod.CrowControl
                 ws.Send("PASS SCHMOOPIIE");
                 ws.Send("NICK " + TwitchUsername);
 
-                ws.Send("JOIN #" + ChannelName);
+                ws.Send("JOIN #" + ChannelName.ToLower());
 
                 Console.WriteLine("JOINING");
 

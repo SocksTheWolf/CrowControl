@@ -9,6 +9,7 @@ namespace Celeste.Mod.CrowControl
     {
         private SpriteFont font;
         private CrowControlSettings settings;
+        private TimerHelper timerHelper;
         public Vector2 uiPos;
         private Texture2D pixel = null;
 
@@ -28,11 +29,13 @@ namespace Celeste.Mod.CrowControl
         private string snowballText;
         private string doubleDashText;
         private string godModeText;
+        private string fishText;
         private List<string> texts = new List<string>();
 
-        public InfoPanel(CrowControlSettings settings)
+        public InfoPanel(CrowControlSettings settings, TimerHelper timerHelper)
         {
             this.settings = settings;
+            this.timerHelper = timerHelper;
 
             uiPos = new Vector2(15, 219);
         }
@@ -83,7 +86,7 @@ namespace Celeste.Mod.CrowControl
             {
                 if (settings.BlurLevel > 1)
                 {
-                    blurText = "Blur (ENABLED)" + " (" + Math.Round(CrowControlModule.blurTimer.TimeLeft / 1000) + "s)";
+                    blurText = "Blur (ENABLED)" + " (" + Math.Round(timerHelper.blurTimer.TimeLeft / 1000) + "s)";
                 }
                 else
                 {
@@ -117,7 +120,7 @@ namespace Celeste.Mod.CrowControl
             {
                 if (settings.MirrorEnabled)
                 {
-                    mirrorText = "Mirror (ENABLED)" + " (" + Math.Round(CrowControlModule.mirrorTimer.TimeLeft / 1000) + "s)";
+                    mirrorText = "Mirror (ENABLED)" + " (" + Math.Round(timerHelper.mirrorTimer.TimeLeft / 1000) + "s)";
                 }
                 else
                 {
@@ -142,7 +145,7 @@ namespace Celeste.Mod.CrowControl
             {
                 if (settings.DisableGrabEnabled)
                 {
-                    disableGrabText = "Disable Grab (ENABLED)" + " (" + Math.Round(CrowControlModule.disableGrabTimer.TimeLeft / 1000) + "s)";
+                    disableGrabText = "Disable Grab (ENABLED)" + " (" + Math.Round(timerHelper.disableGrabTimer.TimeLeft / 1000) + "s)";
                 }
                 else
                 {
@@ -158,7 +161,7 @@ namespace Celeste.Mod.CrowControl
             {
                 if (settings.InvisibleEnabled)
                 {
-                    invisibleText = "Invisible (ENABLED)" + " (" + Math.Round(CrowControlModule.invisibleTimer.TimeLeft / 1000) + "s)";
+                    invisibleText = "Invisible (ENABLED)" + " (" + Math.Round(timerHelper.invisibleTimer.TimeLeft / 1000) + "s)";
                 }
                 else
                 {
@@ -174,7 +177,7 @@ namespace Celeste.Mod.CrowControl
             {
                 if (settings.InvertEnabled)
                 {
-                    invertText = "Invert (ENABLED)" + " (" + Math.Round(CrowControlModule.invertTimer.TimeLeft / 1000) + "s)";
+                    invertText = "Invert (ENABLED)" + " (" + Math.Round(timerHelper.invertTimer.TimeLeft / 1000) + "s)";
                 }
                 else
                 {
@@ -190,7 +193,7 @@ namespace Celeste.Mod.CrowControl
             {
                 if (settings.LowFrictionEnabled)
                 {
-                    lowFrictionText = "Low Friction (ENABLED)" + " (" + Math.Round(CrowControlModule.lowFrictionTimer.TimeLeft / 1000) + "s)";
+                    lowFrictionText = "Low Friction (ENABLED)" + " (" + Math.Round(timerHelper.lowFrictionTimer.TimeLeft / 1000) + "s)";
                 }
                 else
                 {
@@ -233,7 +236,7 @@ namespace Celeste.Mod.CrowControl
             {
                 if (settings.GodModeEnabled)
                 {
-                    godModeText = "God Mode (ENABLED)" + " (" + Math.Round(CrowControlModule.godModeTimer.TimeLeft / 1000) + "s)";
+                    godModeText = "God Mode (ENABLED)" + " (" + Math.Round(timerHelper.godModeTimer.TimeLeft / 1000) + "s)";
                 }
                 else
                 {
@@ -243,6 +246,15 @@ namespace Celeste.Mod.CrowControl
             else
             {
                 godModeText = null;
+            }
+            //fish
+            if (settings.Fish)
+            {
+                fishText = "Fish (" + settings.CurrentFishVote + "/" + settings.FishVoteLimit + ")";
+            }
+            else 
+            {
+                fishText = null;
             }
 
             //add em to list
@@ -309,6 +321,10 @@ namespace Celeste.Mod.CrowControl
             if (godModeText != null) 
             {
                 texts.Add(godModeText);
+            }
+            if (fishText != null) 
+            {
+                texts.Add(fishText);
             }
         }
 

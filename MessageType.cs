@@ -16,6 +16,7 @@
         SNOWBALL,
         DOUBLEDASH,
         GODMODE,
+        FISH,
         ARCHIE
     }
 }

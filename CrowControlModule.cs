@@ -19,23 +19,17 @@ namespace Celeste.Mod.CrowControl
 
         private Player ply;
         private Level currentLevel;
-        private Random rand = new Random();
-        private Bumper currentBumper;
-        private bool spawnKevin = false;
+        public bool spawnKevin = false;
         private bool disableCommands = false;
         private int effectTime;
         private bool inCredits = false;
         private bool ascending = false;
+        private bool twoDashesOnSpawn = false;
 
         private InfoPanel infoPanel;
 
-        public static TimerPlus blurTimer;
-        public static TimerPlus mirrorTimer;
-        public static TimerPlus disableGrabTimer;
-        public static TimerPlus invisibleTimer;
-        public static TimerPlus invertTimer;
-        public static TimerPlus lowFrictionTimer;
-        public static TimerPlus godModeTimer;
+        private TimerHelper timerHelper;
+        private SpawnHelper spawnHelper;
 
         private static TimerPlus cawTimer;
         private static TimerPlus seekerSpawnTimer;
@@ -45,11 +39,7 @@ namespace Celeste.Mod.CrowControl
 
         private static MiniTextbox currentMiniTextBox;
 
-        private bool extendedPathfinder = false;
-        private List<Seeker> spawnedSeekers = new List<Seeker>();
-        private List<Snowball> spawnedSnowballs = new List<Snowball>();
-        private List<AngryOshiro> spawnedOshiros = new List<AngryOshiro>();
-
+        private ActionHelper actionHelper;
 
         public CrowControlModule()
         {
@@ -63,30 +53,13 @@ namespace Celeste.Mod.CrowControl
                 return;
             }
 
+            timerHelper = new TimerHelper();
+            spawnHelper = new SpawnHelper();
+            actionHelper = new ActionHelper(timerHelper, spawnHelper);
+
             effectTime = Settings.EffectTime;
 
-            infoPanel = new InfoPanel(Settings);
-
-            blurTimer = new TimerPlus(Settings.EffectTime * 1000);
-            blurTimer.Elapsed += BlurTimer_Elapsed;
-
-            mirrorTimer = new TimerPlus(Settings.EffectTime * 1000);
-            mirrorTimer.Elapsed += MirrorTimer_Elapsed;
-
-            disableGrabTimer = new TimerPlus(Settings.EffectTime * 1000);
-            disableGrabTimer.Elapsed += DisableGrabTimer_Elapsed;
-
-            invisibleTimer = new TimerPlus(Settings.EffectTime * 1000);
-            invisibleTimer.Elapsed += InvisibleTimer_Elapsed;
-
-            invertTimer = new TimerPlus(Settings.EffectTime * 1000);
-            invertTimer.Elapsed += InvertTimer_Elapsed;
-
-            lowFrictionTimer = new TimerPlus(Settings.EffectTime * 1000);
-            lowFrictionTimer.Elapsed += LowFrictionTimer_Elapsed;
-
-            godModeTimer = new TimerPlus(Settings.EffectTime * 1000);
-            godModeTimer.Elapsed += GodModeTimer_Elapsed;
+            infoPanel = new InfoPanel(Settings, timerHelper);
 
             cawTimer = new TimerPlus(500);
             cawTimer.Elapsed += CawTimer_Elapsed;
@@ -99,6 +72,7 @@ namespace Celeste.Mod.CrowControl
             On.Celeste.HudRenderer.RenderContent += HudRenderer_RenderContent;
             On.Celeste.GameplayRenderer.Render += GameplayRenderer_Render;
             On.Celeste.Player.Added += Player_Added;
+            On.Celeste.Player.Die += Player_Die;
             On.Celeste.Level.Update += Level_Update;
             On.Celeste.Level.NextLevel += Level_NextLevel;
 
@@ -111,6 +85,68 @@ namespace Celeste.Mod.CrowControl
             On.Celeste.CS08_Ending.OnEnd += CS08_Ending_OnEnd;
             On.Celeste.CS07_Ascend.OnBegin += CS07_Ascend_OnBegin;
             On.Celeste.Player.SummitLaunch += Player_SummitLaunch;
+        }
+
+        private PlayerDeadBody Player_Die(On.Celeste.Player.orig_Die orig, Player self, Vector2 direction, bool evenIfInvincible, bool registerDeathInStats)
+        {
+            if (self.Dashes == 2)
+            {
+                twoDashesOnSpawn = true;
+            }
+            else 
+            {
+                twoDashesOnSpawn = false;
+            }
+
+            foreach (Seeker seeker in spawnHelper.spawnedSeekers) 
+            {
+                SeekerName nameObj = seeker.Get<SeekerName>();
+                nameObj.Name = null;
+            }
+
+            return orig(self, direction, evenIfInvincible, registerDeathInStats);
+        }
+
+        public TimerHelper GetTimerHelper() 
+        {
+            return timerHelper;
+        }
+
+        private void ModPathfinderConstructor(ILContext il)
+        {
+            ILCursor cursor = new ILCursor(il);
+
+            // go everywhere where the 0.8 second delay is defined
+            if (cursor.TryGotoNext(MoveType.After,
+                instr => instr.OpCode == OpCodes.Ldc_I4 && (int)instr.Operand == 200,
+                instr => instr.OpCode == OpCodes.Ldc_I4 && (int)instr.Operand == 200))
+            {
+                // we will resize the pathfinder (provided that the seekers everywhere variant is enabled) to fit all rooms in vanilla Celeste
+                cursor.Emit(OpCodes.Pop);
+                cursor.Emit(OpCodes.Pop);
+                cursor.Emit(OpCodes.Ldarg_1);
+                cursor.EmitDelegate<Func<Pathfinder, int>>(DeterminePathfinderWidth);
+                cursor.Emit(OpCodes.Ldarg_1);
+                cursor.EmitDelegate<Func<Pathfinder, int>>(DeterminePathfinderHeight);
+            }
+        }
+
+        private int DeterminePathfinderWidth(Pathfinder self)
+        {
+            if (spawnHelper.extendedPathfinder)
+            {
+                return 659;
+            }
+            return 200;
+        }
+
+        private int DeterminePathfinderHeight(Pathfinder self)
+        {
+            if (spawnHelper.extendedPathfinder)
+            {
+                return 407;
+            }
+            return 200;
         }
 
         private void Player_SummitLaunch(On.Celeste.Player.orig_SummitLaunch orig, Player self, float targetX)
@@ -186,30 +222,11 @@ namespace Celeste.Mod.CrowControl
             }
         }
 
-        public void ChangeTimerIntervals() 
-        {
-            BlurTimer_Elapsed(null, null);
-            MirrorTimer_Elapsed(null, null);
-            DisableGrabTimer_Elapsed(null, null);
-            InvisibleTimer_Elapsed(null, null);
-            InvertTimer_Elapsed(null, null);
-            LowFrictionTimer_Elapsed(null, null);
-            GodModeTimer_Elapsed(null, null);
-
-            blurTimer.Interval = Settings.EffectTime * 1000;
-            mirrorTimer.Interval = Settings.EffectTime * 1000;
-            disableGrabTimer.Interval = Settings.EffectTime * 1000;
-            invisibleTimer.Interval = Settings.EffectTime * 1000;
-            invertTimer.Interval = Settings.EffectTime * 1000;
-            lowFrictionTimer.Interval = Settings.EffectTime * 1000;
-            godModeTimer.Interval = Settings.EffectTime * 1000;
-        }
-
         private void Level_NextLevel(On.Celeste.Level.orig_NextLevel orig, Level self, Vector2 at, Vector2 dir)
         {
-            spawnedSeekers.Clear();
-            spawnedSnowballs.Clear();
-            spawnedOshiros.Clear();
+            spawnHelper.spawnedSeekers.Clear();
+            spawnHelper.spawnedSnowballs.Clear();
+            spawnHelper.spawnedOshiros.Clear();
 
             ascending = false;
 
@@ -218,26 +235,34 @@ namespace Celeste.Mod.CrowControl
 
         private void SeekerSpawnTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            SpawnSeeker(false);
+            spawnHelper.SpawnSeeker(false, null);
             seekerSpawnTimer.Stop();
         }
 
+        /// <summary>
+        /// Make 1 seeker, snowball and oshiro respawn when you die if there was one in the last room
+        /// </summary>
         private void Player_IntroRespawnEnd(On.Celeste.Player.orig_IntroRespawnEnd orig, Player self)
         {
-            if (spawnedSeekers.Count >= 1)
+            if (spawnHelper.spawnedSeekers.Count >= 1)
             {
                 seekerSpawnTimer.Stop();
                 seekerSpawnTimer.Start();
             }
 
-            if (spawnedSnowballs.Count >= 1) 
+            if (spawnHelper.spawnedSnowballs.Count >= 1) 
             {
-                SpawnSnowball(false);
+                spawnHelper.SpawnSnowball(false);
             }
 
-            if (spawnedOshiros.Count >= 1) 
+            if (spawnHelper.spawnedOshiros.Count >= 1) 
             {
-                SpawnOshiro(false);
+                spawnHelper.SpawnOshiro(false);
+            }
+
+            if (twoDashesOnSpawn) 
+            {
+                self.Dashes = 2;
             }
 
             orig(self);
@@ -245,7 +270,7 @@ namespace Celeste.Mod.CrowControl
 
         private void Level_OnExit(Level level, LevelExit exit, LevelExit.Mode mode, Session session, HiresSnow snow)
         {
-            extendedPathfinder = false;
+            spawnHelper.extendedPathfinder = false;
         }
 
         private void CawTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -254,56 +279,16 @@ namespace Celeste.Mod.CrowControl
             cawTimer.Stop();
         }
 
-        private void BlurTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            Settings.BlurLevel = 1;
-            Settings.BlurEnabled = false;
-            blurTimer.Stop();
-        }
-
-        private void MirrorTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            Settings.MirrorEnabled = false;
-            mirrorTimer.Stop();
-        }
-
-        private void DisableGrabTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            Settings.DisableGrabEnabled = false;
-            disableGrabTimer.Stop();
-        }
-
-        private void InvisibleTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            Settings.InvisibleEnabled = false;
-            invisibleTimer.Stop();
-        }
-
-        private void InvertTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            Settings.InvertEnabled = false;
-            invertTimer.Stop();
-        }
-
-        private void LowFrictionTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            Settings.LowFrictionEnabled = false;
-            lowFrictionTimer.Stop();
-        }
-
-        private void GodModeTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            Settings.GodModeEnabled = false;
-            godModeTimer.Stop();
-        }
-
         private void Bumper_OnPlayer(On.Celeste.Bumper.orig_OnPlayer orig, Bumper self, Player player)
         {
-            currentLevel.Remove(currentBumper);
+            spawnHelper.RemoveCurrentBumper();
 
             orig(self, player);
         }
 
+        /// <summary>
+        /// Creates a new bird object for use in the renderer
+        /// </summary>
         private void NewBirdy()
         {
             if (birdy == null && currentLevel != null)
@@ -368,7 +353,7 @@ namespace Celeste.Mod.CrowControl
 
             if (effectTime != Settings.EffectTime) 
             {
-                ChangeTimerIntervals();
+                timerHelper.ChangeTimerIntervals();
                 effectTime = Settings.EffectTime;
             }
 
@@ -379,6 +364,25 @@ namespace Celeste.Mod.CrowControl
                 infoPanel.SetFont(Monocle.Draw.DefaultFont, Monocle.Draw.SpriteBatch.GraphicsDevice);
                 infoPanel.Draw(Monocle.Draw.SpriteBatch);
             }
+
+            if (Settings.ShowSeekerNames)
+            {
+                foreach (Seeker seeker in spawnHelper.spawnedSeekers)
+                {
+                    SeekerName nameObj = seeker.Get<SeekerName>();
+                    if (nameObj.Name != null)
+                    {
+                        string name = nameObj.Name;
+
+                        Vector2 levelPos = seeker.Position - currentLevel.LevelOffset;
+                        Vector2 cameraPosInLevel = currentLevel.Camera.Position - currentLevel.LevelOffset;
+                        Vector2 seekerDrawPos = (levelPos - cameraPosInLevel) * 6;
+
+                        Monocle.Draw.SpriteBatch.DrawString(Monocle.Draw.DefaultFont, name, seekerDrawPos + new Vector2(-(Monocle.Draw.DefaultFont.MeasureString(name).X / 2) - 20, -95), Color.White, 0f, Vector2.Zero, 2f, Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
+                    }
+                }
+            }
+
             Monocle.Draw.SpriteBatch.End();
 
             orig(self, scene);
@@ -387,6 +391,8 @@ namespace Celeste.Mod.CrowControl
         private void Level_Update(On.Celeste.Level.orig_Update orig, Level self)
         {
             Level newLevel = self;
+            actionHelper.SetLevel(newLevel);
+            spawnHelper.SetLevel(newLevel);
             currentLevel = newLevel;
 
             if (Settings.Blur && Settings.BlurEnabled)
@@ -495,6 +501,8 @@ namespace Celeste.Mod.CrowControl
         private void Player_Added(On.Celeste.Player.orig_Added orig, Player self, Monocle.Scene scene)
         {
             ply = self;
+            actionHelper.SetPlayer(self);
+            spawnHelper.SetPlayer(self);
 
             orig(self, scene);
         }
@@ -506,254 +514,19 @@ namespace Celeste.Mod.CrowControl
             Settings.StopThread();
         }
 
-        private void DieAction()
-        {
-            BirdCaw();
-            if (!ply.Dead && !currentLevel.Transitioning)
-            {
-                ply.Die(Vector2.Zero);
-            }
-        }
-
-        private void BlurAction()
-        {
-            Settings.BlurEnabled = true;
-            Settings.BlurLevel = 3;
-            blurTimer.Stop();
-            blurTimer.Start();
-        }
-
-        private void BumpAction()
-        {
-            if (currentLevel != null)
-            {
-                BirdCaw();
-                Vector2 offset = new Vector2(rand.Next(-8, 8), rand.Next(-8, 8));
-                currentBumper = new Bumper(ply.Position + offset, Vector2.Zero);
-                currentBumper.Active = false;
-                currentLevel.Add(currentBumper);
-            }
-        }
-
-        private void SeekerAction()
-        {
-            BirdCaw();
-
-            SpawnSeeker(true);
-        }
-
-        private void SpawnSeeker(bool addToList) 
-        {
-            if (currentLevel == null) 
-            {
-                return;
-            }
-
-            if (currentLevel.Bounds.Width / 8 > 659 || currentLevel.Bounds.Height / 8 > 407)
-            {
-                return;
-            }
-
-            if (!extendedPathfinder)
-            {
-                extendedPathfinder = true;
-                currentLevel.Pathfinder = new Pathfinder(currentLevel);
-            }
-
-            for (int i = 0; i < 100; i++)
-            {
-                int x = rand.Next(currentLevel.Bounds.Width) + currentLevel.Bounds.X;
-                int y = rand.Next(currentLevel.Bounds.Height) + currentLevel.Bounds.Y;
-
-                // should be at least 100 pixels from the player
-                double playerDistance = Math.Sqrt(Math.Pow(MathHelper.Distance(x, ply.X), 2) + Math.Pow(MathHelper.Distance(y, ply.Y), 2));
-
-                // also check if we are not spawning in a wall, that would be a shame
-                Rectangle collideRectangle = new Rectangle(x - 8, y - 8, 16, 16);
-                if (playerDistance > 50 && !currentLevel.CollideCheck<Solid>(collideRectangle) && !currentLevel.CollideCheck<Seeker>(collideRectangle))
-                {
-                    // build a Seeker with a proper EntityID to make Speedrun Tool happy (this is useless in vanilla Celeste but the constructor call is intercepted by Speedrun Tool)
-                    EntityData seekerData = generateBasicEntityData(currentLevel, 10 + 1);
-                    seekerData.Position = new Vector2(x, y);
-                    Seeker seeker = new Seeker(seekerData, Vector2.Zero);
-                    if (addToList)
-                    {
-                        spawnedSeekers.Add(seeker);
-                    }
-                    currentLevel.Add(seeker);
-                    break;
-                }
-            }
-        }
-
-        private void ModPathfinderConstructor(ILContext il)
-        {
-            ILCursor cursor = new ILCursor(il);
-
-            // go everywhere where the 0.8 second delay is defined
-            if (cursor.TryGotoNext(MoveType.After,
-                instr => instr.OpCode == OpCodes.Ldc_I4 && (int)instr.Operand == 200,
-                instr => instr.OpCode == OpCodes.Ldc_I4 && (int)instr.Operand == 200))
-            {
-                // we will resize the pathfinder (provided that the seekers everywhere variant is enabled) to fit all rooms in vanilla Celeste
-                cursor.Emit(OpCodes.Pop);
-                cursor.Emit(OpCodes.Pop);
-                cursor.Emit(OpCodes.Ldarg_1);
-                cursor.EmitDelegate<Func<Pathfinder, int>>(DeterminePathfinderWidth);
-                cursor.Emit(OpCodes.Ldarg_1);
-                cursor.EmitDelegate<Func<Pathfinder, int>>(DeterminePathfinderHeight);
-            }
-        }
-
-        private int DeterminePathfinderWidth(Pathfinder self)
-        {
-            if (extendedPathfinder)
-            {
-                return 659;
-            }
-            return 200;
-        }
-
-        private int DeterminePathfinderHeight(Pathfinder self)
-        {
-            if (extendedPathfinder)
-            {
-                return 407;
-            }
-            return 200;
-        }
-
-        private void MirrorAction()
-        {
-            BirdCaw();
-            Settings.MirrorEnabled = true;
-            mirrorTimer.Stop();
-            mirrorTimer.Start();
-        }
-
-        private void KevinAction()
-        {
-            BirdCaw();
-            if (currentLevel != null && !currentLevel.Transitioning)
-            {
-                if (ply != null)
-                {
-                    spawnKevin = true;
-                }
-            }
-        }
-
-        private void DisableGrabAction()
-        {
-            BirdCaw();
-            Settings.DisableGrabEnabled = true;
-            disableGrabTimer.Stop();
-            disableGrabTimer.Start();
-        }
-
-        private void InvisibleAction()
-        {
-            BirdCaw();
-            Settings.InvisibleEnabled = true;
-            invisibleTimer.Stop();
-            invisibleTimer.Start();
-        }
-
-        private void InvertAction()
-        {
-            BirdCaw();
-            Settings.InvertEnabled = true;
-            invertTimer.Stop();
-            invertTimer.Start();
-        }
-
-        private void LowFrictionAction()
-        {
-            BirdCaw();
-            Settings.LowFrictionEnabled = true;
-            lowFrictionTimer.Stop();
-            lowFrictionTimer.Start();
-        }
-
         private void ArchieAction()
         {
             BirdCaw();
             birdColor = new Color(100, 230, 50);
         }
 
-        private void OshiroAction()
-        {
-            BirdCaw();
-
-            SpawnOshiro(true);
-        }
-
-        private void SpawnOshiro(bool addToList) 
-        {
-            if (currentLevel == null)
-            {
-                return;
-            }
-
-            Vector2 position = new Vector2(currentLevel.Bounds.Left - 32, currentLevel.Bounds.Top + currentLevel.Bounds.Height / 2);
-            AngryOshiro oshiro = new AngryOshiro(position, false);
-            if (addToList) 
-            {
-                spawnedOshiros.Add(oshiro);
-            }
-            currentLevel.Add(oshiro);
-        }
-
-        private void SnowballAction() 
-        {
-            BirdCaw();
-
-            SpawnSnowball(true);
-        }
-
-        private void SpawnSnowball(bool addToList) 
-        {
-            if (currentLevel == null)
-            {
-                return;
-            }
-
-            Snowball snowball = new Snowball();
-            if (addToList) 
-            {
-                spawnedSnowballs.Add(snowball);
-            }
-            currentLevel.Add(snowball);
-
-            snowball.X = currentLevel.Camera.Left - 60f;
-        }
-
-        private void DoubleDashAction() 
-        {
-            BirdCaw();
-
-            if (ply != null) 
-            {
-                ply.Dashes = 2;
-                Audio.Play("event:/new_content/game/10_farewell/pinkdiamond_touch");
-            }
-        }
-
-        private void GodModeAction() 
-        {
-            BirdCaw();
-            Settings.GodModeEnabled = true;
-            godModeTimer.Stop();
-            godModeTimer.Start();
-        }
-
-        private void BirdCaw()
+        public void BirdCaw()
         {
             if (birdy != null)
             {
                 birdy.Caw().MoveNext();
                 cawTimer.Start();
-            }
+            }   
         }
 
         public void OnCustomRewardMessage(ChatMessage msg)
@@ -785,7 +558,7 @@ namespace Celeste.Mod.CrowControl
                         {
                             if (!ply.Dead)
                             {
-                                DieAction();
+                                actionHelper.DieAction();
                             }
                             else
                             {
@@ -802,7 +575,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         else
                         {
-                            BlurAction();
+                            actionHelper.BlurAction();
 
                             Settings.CurrentBlurVote = 0;
                         }
@@ -814,7 +587,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         else
                         {
-                            BumpAction();
+                            actionHelper.BumpAction();
                             Settings.CurrentBumpVote = 0;
                         }
                         break;
@@ -825,7 +598,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         else
                         {
-                            SeekerAction();
+                            actionHelper.SeekerAction(msg.Username);
                             Settings.CurrentSeekerVote = 0;
                         }
                         break;
@@ -836,7 +609,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         else
                         {
-                            MirrorAction();
+                            actionHelper.MirrorAction();
                             Settings.CurrentMirrorVote = 0;
                         }
                         break;
@@ -847,7 +620,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         else
                         {
-                            KevinAction();
+                            actionHelper.KevinAction();
                             Settings.CurrentKevinVote = 0;
                         }
                         break;
@@ -858,7 +631,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         else
                         {
-                            DisableGrabAction();
+                            actionHelper.DisableGrabAction();
                             Settings.CurrentDisableGrabVote = 0;
                         }
                         break;
@@ -869,7 +642,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         else
                         {
-                            InvisibleAction();
+                            actionHelper.InvisibleAction();
                             Settings.CurrentInvisibleVote = 0;
                         }
                         break;
@@ -880,7 +653,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         else
                         {
-                            InvertAction();
+                            actionHelper.InvertAction();
                             Settings.CurrentInvertVote = 0;
                         }
                         break;
@@ -891,7 +664,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         else
                         {
-                            LowFrictionAction();
+                            actionHelper.LowFrictionAction();
                             Settings.CurrentLowFrictionVote = 0;
                         }
                         break;
@@ -902,7 +675,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         else
                         {
-                            OshiroAction();
+                            actionHelper.OshiroAction();
                             Settings.CurrentOshiroVote = 0;
                         }
                         break;
@@ -913,7 +686,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         else
                         {
-                            SnowballAction();
+                            actionHelper.SnowballAction();
                             Settings.CurrentSnowballVote = 0;
                         }
                         break;
@@ -924,7 +697,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         else 
                         {
-                            DoubleDashAction();
+                            actionHelper.DoubleDashAction();
                             Settings.CurrentDoubleDashVote = 0;
                         }
                         break;
@@ -935,8 +708,19 @@ namespace Celeste.Mod.CrowControl
                         }
                         else 
                         {
-                            GodModeAction();
+                            actionHelper.GodModeAction();
                             Settings.CurrentGodModeVote = 0;
+                        }
+                        break;
+                    case MessageType.FISH:
+                        if (Settings.CurrentFishVote < Settings.FishVoteLimit - 1)
+                        {
+                            Settings.CurrentFishVote++;
+                        }
+                        else
+                        {
+                            actionHelper.FishAction();
+                            Settings.CurrentFishVote = 0;
                         }
                         break;
                     case MessageType.ARCHIE:
@@ -956,46 +740,49 @@ namespace Celeste.Mod.CrowControl
                 switch (msg.CustomRewardMessageType)
                 {
                     case MessageType.DIE:
-                        DieAction();
+                        actionHelper.DieAction();
                         break;
                     case MessageType.BLUR:
-                        BlurAction();
+                        actionHelper.BlurAction();
                         break;
                     case MessageType.BUMP:
-                        BumpAction();
+                        actionHelper.BumpAction();
                         break;
                     case MessageType.SEEKER:
-                        SeekerAction();
+                        actionHelper.SeekerAction(msg.Username);
                         break;
                     case MessageType.MIRROR:
-                        MirrorAction();
+                        actionHelper.MirrorAction();
                         break;
                     case MessageType.KEVIN:
-                        KevinAction();
+                        actionHelper.KevinAction();
                         break;
                     case MessageType.DISABLEGRAB:
-                        DisableGrabAction();
+                        actionHelper.DisableGrabAction();
                         break;
                     case MessageType.INVISIBLE:
-                        InvisibleAction();
+                        actionHelper.InvisibleAction();
                         break;
                     case MessageType.INVERT:
-                        InvertAction();
+                        actionHelper.InvertAction();
                         break;
                     case MessageType.LOWFRICTION:
-                        LowFrictionAction();
+                        actionHelper.LowFrictionAction();
                         break;
                     case MessageType.OSHIRO:
-                        OshiroAction();
+                        actionHelper.OshiroAction();
                         break;
                     case MessageType.SNOWBALL:
-                        SnowballAction();
+                        actionHelper.SnowballAction();
                         break;
                     case MessageType.DOUBLEDASH:
-                        DoubleDashAction();
+                        actionHelper.DoubleDashAction();
                         break;
                     case MessageType.GODMODE:
-                        GodModeAction();
+                        actionHelper.GodModeAction();
+                        break;
+                    case MessageType.FISH:
+                        actionHelper.FishAction();
                         break;
                     case MessageType.ARCHIE:
                         ArchieAction();
@@ -1022,25 +809,6 @@ namespace Celeste.Mod.CrowControl
                 currentMiniTextBox = new MiniTextbox(DialogIds.TextBoxDisconnected);
                 currentLevel.Add(currentMiniTextBox);
             }
-        }
-
-        private EntityData generateBasicEntityData(Level level, int entityNumber)
-        {
-            EntityData entityData = new EntityData();
-
-            // we hash the current level name, so we will get a hopefully-unique "room hash" for each room in the level
-            // the resulting hash should be between 0 and 49_999_999 inclusive
-            int roomHash = Math.Abs(level.Session.Level.GetHashCode()) % 50_000_000;
-
-            // generate an ID, minimum 1_000_000_000 (to minimize chances of conflicting with existing entities)
-            // and maximum 1_999_999_999 inclusive (1_000_000_000 + 49_999_999 * 20 + 19) => max value for int32 is 2_147_483_647
-            // => if the same entity (same entityNumber) is generated in the same room, it will have the same ID, like any other entity would
-            entityData.ID = 1_000_000_000 + roomHash * 20 + entityNumber;
-
-            entityData.Level = level.Session.LevelData;
-            entityData.Values = new Dictionary<string, object>();
-
-            return entityData;
         }
 
         private bool CheckIfMessageTypeEnabled(MessageType type)
@@ -1127,6 +895,12 @@ namespace Celeste.Mod.CrowControl
                     break;
                 case MessageType.GODMODE:
                     if (Settings.GodMode) 
+                    {
+                        return true;
+                    }
+                    break;
+                case MessageType.FISH:
+                    if (Settings.Fish) 
                     {
                         return true;
                     }
