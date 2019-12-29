@@ -83,7 +83,7 @@
     <Compile Include="Helpers\ActionHelper.cs" />
     <Compile Include="Helpers\SpawnHelper.cs" />
     <Compile Include="Helpers\TimerHelper.cs" />
-    <Compile Include="InfoPanel.cs" />
+    <Compile Include="UI\InfoPanel.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TimerPlus.cs">

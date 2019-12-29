@@ -76,7 +76,7 @@ namespace Celeste.Mod.CrowControl
             {
                 return Color.White;
             }
-            return Color.Goldenrod;
+            return Color.White;
         }
     }
 }

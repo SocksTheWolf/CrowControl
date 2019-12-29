@@ -354,7 +354,6 @@ namespace Celeste.Mod.CrowControl
 
             for (int i = 0; i < texts.Count; i++)
             {
-                
                 spriteBatch.DrawString(font, texts[i], new Vector2(uiPos.X + 5, uiPos.Y + 4 + (i * 18) + ((settings.InfoPanelSize - 1) * (i * 2f))), Color.White, 0f, Vector2.Zero, 1 + ((settings.InfoPanelSize - 1) * 0.2f), SpriteEffects.None, 1f);
             }
             texts.Clear();

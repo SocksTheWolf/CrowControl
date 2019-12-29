@@ -32,11 +32,13 @@ namespace Celeste.Mod.CrowControl
         //DIE
         [SettingIgnore] public bool Die { get; set; } = true;
         [SettingIgnore] public int DieVoteLimit { get; set; } = 10;
+
         [YamlIgnore] [SettingIgnore] public int CurrentDieVote { get; set; } = 0;
 
         //BLUR
         [SettingIgnore] public bool Blur { get; set; } = true;
         [SettingIgnore] public int BlurVoteLimit { get; set; } = 8;
+
         [YamlIgnore] [SettingIgnore][SettingName(DialogIds.BlurLevel)] public int BlurLevel { get; set; } = 1;
         [YamlIgnore] [SettingIgnore] public int CurrentBlurVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool BlurEnabled { get; set; } = false;
@@ -44,73 +46,86 @@ namespace Celeste.Mod.CrowControl
         //BUMP
         [SettingIgnore] public bool Bump { get; set; } = true;
         [SettingIgnore] public int BumpVoteLimit { get; set; } = 1;
+
         [YamlIgnore] [SettingIgnore] public int CurrentBumpVote { get; set; } = 0;
 
         //SEEKER
-        [SettingName(DialogIds.Seeker)] public bool Seeker { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.SeekerVoteLimit)] public int SeekerVoteLimit { get; set; } = 1;
+        [SettingIgnore] public bool Seeker { get; set; } = true;
+        [SettingIgnore] public int SeekerVoteLimit { get; set; } = 1;
+        [SettingIgnore] public bool ShowSeekerNames { get; set; } = true;
+
         [YamlIgnore] [SettingIgnore] public int CurrentSeekerVote { get; set; } = 0;
-        [SettingName(DialogIds.ShowSeekerNames)] public bool ShowSeekerNames { get; set; } = true;
 
         //MIRROR
-        [SettingName(DialogIds.Mirror)] public bool Mirror { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.MirrorVoteLimit)] public int MirrorVoteLimit { get; set; } = 8;
+        [SettingIgnore] public bool Mirror { get; set; } = true;
+        [SettingIgnore] public int MirrorVoteLimit { get; set; } = 8;
+
         [YamlIgnore] [SettingIgnore] public int CurrentMirrorVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool MirrorEnabled { get; set; } = false;
 
         //KEVIN
-        [SettingName(DialogIds.Kevin)] public bool Kevin { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.KevinVoteLimit)] public int KevinVoteLimit { get; set; } = 2;
+        [SettingIgnore] public bool Kevin { get; set; } = true;
+        [SettingIgnore] public int KevinVoteLimit { get; set; } = 2;
+
         [YamlIgnore] [SettingIgnore] public int CurrentKevinVote { get; set; } = 0;
 
         //DISABLE GRAB
-        [SettingName(DialogIds.DisableGrab)] public bool DisableGrab { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.DisableGrabVoteLimit)] public int DisableGrabVoteLimit { get; set; } = 8;
+        [SettingIgnore] public bool DisableGrab { get; set; } = true;
+        [SettingIgnore] public int DisableGrabVoteLimit { get; set; } = 8;
+
         [YamlIgnore] [SettingIgnore] public int CurrentDisableGrabVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool DisableGrabEnabled { get; set; } = false;
 
         //INVISIBLE
-        [SettingName(DialogIds.Invisible)] public bool Invisible { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.InvisibleVoteLimit)] public int InvisibleVoteLimit { get; set; } = 8;
+        [SettingIgnore] public bool Invisible { get; set; } = true;
+        [SettingIgnore] public int InvisibleVoteLimit { get; set; } = 8;
+
         [YamlIgnore] [SettingIgnore] public int CurrentInvisibleVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool InvisibleEnabled { get; set; } = false;
 
         //INVERT
-        [SettingName(DialogIds.Invert)] public bool Invert { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.InvertVoteLimit)] public int InvertVoteLimit { get; set; } = 12;
+        [SettingIgnore] public bool Invert { get; set; } = true;
+        [SettingIgnore] public int InvertVoteLimit { get; set; } = 12;
+
         [YamlIgnore] [SettingIgnore] public int CurrentInvertVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool InvertEnabled { get; set; } = false;
 
         //LOW FRICTION
-        [SettingName(DialogIds.LowFriction)] public bool LowFriction { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.LowFrictionVoteLimit)] public int LowFrictionVoteLimit { get; set; } = 8;
+        [SettingIgnore] public bool LowFriction { get; set; } = true;
+        [SettingIgnore] public int LowFrictionVoteLimit { get; set; } = 8;
+
         [YamlIgnore] [SettingIgnore] public int CurrentLowFrictionVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool LowFrictionEnabled { get; set; } = false;
 
         //OSHIRO
-        [SettingName(DialogIds.Oshiro)] public bool Oshiro { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.OshiroVoteLimit)] public int OshiroVoteLimit { get; set; } = 2;
+        [SettingIgnore] public bool Oshiro { get; set; } = true;
+        [SettingIgnore] public int OshiroVoteLimit { get; set; } = 2;
+
         [YamlIgnore] [SettingIgnore] public int CurrentOshiroVote { get; set; } = 0;
 
         //SNOWBALL
-        [SettingName(DialogIds.Snowball)] public bool Snowball { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.SnowballVoteLimit)] public int SnowballVoteLimit { get; set; } = 1;
+        [SettingIgnore] public bool Snowball { get; set; } = true;
+        [SettingIgnore] public int SnowballVoteLimit { get; set; } = 1;
+
         [YamlIgnore] [SettingIgnore] public int CurrentSnowballVote { get; set; } = 0;
 
         //DOUBLEDASH
-        [SettingName(DialogIds.DoubleDash)] public bool DoubleDash { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.DoubleDashVoteLimit)] public int DoubleDashVoteLimit { get; set; } = 1;
+        [SettingIgnore] public bool DoubleDash { get; set; } = true;
+        [SettingIgnore] public int DoubleDashVoteLimit { get; set; } = 1;
+
         [YamlIgnore] [SettingIgnore] public int CurrentDoubleDashVote { get; set; } = 0;
 
         //GODMODE
-        [SettingName(DialogIds.GodMode)] public bool GodMode { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.GodModeVoteLimit)] public int GodModeVoteLimit { get; set; } = 20;
+        [SettingIgnore] public bool GodMode { get; set; } = true;
+        [SettingIgnore] public int GodModeVoteLimit { get; set; } = 20;
+
         [YamlIgnore] [SettingIgnore] public int CurrentGodModeVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool GodModeEnabled { get; set; } = false;
 
         //FISH
-        [SettingName(DialogIds.Fish)] public bool Fish { get; set; } = true;
-        [SettingRange(1, 100)] [SettingName(DialogIds.FishVoteLimit)] public int FishVoteLimit { get; set; } = 1;
+        [SettingIgnore] public bool Fish { get; set; } = true;
+        [SettingIgnore] public int FishVoteLimit { get; set; } = 1;
+
         [YamlIgnore] [SettingIgnore] public int CurrentFishVote { get; set; } = 0;
 
         //ARCHIE
@@ -148,7 +163,7 @@ namespace Celeste.Mod.CrowControl
 
         public void CreateConnectEntry(TextMenu textMenu, bool inGame)
         {
-            textMenu.Add(new TextMenu.Button(DialogIds.Connect).Pressed(() =>
+            textMenu.Add(new TextMenu.Button(Dialog.Clean(DialogIds.Connect)).Pressed(() =>
             {
                 if (webSocketThread == null && Enabled)
                 {
@@ -160,7 +175,7 @@ namespace Celeste.Mod.CrowControl
 
         public void CreateDisconnectEntry(TextMenu textMenu, bool inGame)
         {
-            textMenu.Add(new TextMenu.Button(DialogIds.Disconnect).Pressed(() =>
+            textMenu.Add(new TextMenu.Button(Dialog.Clean(DialogIds.Disconnect)).Pressed(() =>
             {
                 if (webSocketThread != null && webSocketThread.IsAlive)
                 {
@@ -171,7 +186,7 @@ namespace Celeste.Mod.CrowControl
 
         public void CreateCommandSettingsEntry(TextMenu textMenu, bool inGame) 
         {
-            textMenu.Add(new TextMenu.Button(DialogIds.CommandSettings).Pressed(() =>
+            textMenu.Add(new TextMenu.Button(Dialog.Clean(DialogIds.CommandSettings)).Pressed(() =>
             {
                 OuiModOptions.Instance.Overworld.Goto<OuiCrowControlSubmenu>();
             }));
