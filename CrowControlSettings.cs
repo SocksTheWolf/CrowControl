@@ -150,7 +150,7 @@ namespace Celeste.Mod.CrowControl
         {
             if (!inGame)
             {
-                textMenu.Add(new TextMenu.Button(DialogIds.ChannelName + ": " + ChannelName).Pressed(() =>
+                textMenu.Add(new TextMenu.Button(Dialog.Clean(DialogIds.ChannelName) + ": " + ChannelName).Pressed(() =>
                 {
                     textMenu.SceneAs<Overworld>().Goto<OuiModOptionString>().Init<OuiModOptions>(
                         ChannelName,

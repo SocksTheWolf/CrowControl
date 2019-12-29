@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Components\SeekerName.cs" />
+    <Compile Include="Components\SnowballName.cs" />
     <Compile Include="CrowControlModule.cs" />
     <Compile Include="CrowControlSettings.cs" />
     <Compile Include="DialogIds.cs" />

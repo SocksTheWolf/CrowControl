@@ -4,13 +4,13 @@
     {
         //Mod Options
         public const string CrowControl = "CROW_CONTROL";
-        public const string EnableInfoPanel = "ENABLE_INFO_PANEL";
-        public const string InfoPanelSize = "INFO_PANEL_SIZE";
-        public const string ShowTotalRequests = "SHOW_TOTAL_REQUESTS";
-        public const string MinimumBitsToSkip = "MINIMUM_BITS_TO_SKIP";
-        public const string EffectTime = "EFFECT_TIME";
-        public const string Enabled = "STANS_MOD_ENABLED";
-        public const string ChannelName = "Channel Name";
+        public const string EnableInfoPanel = "CROWCONTROL_ENABLE_INFO_PANEL";
+        public const string InfoPanelSize = "CROWCONTROL_INFO_PANEL_SIZE";
+        public const string ShowTotalRequests = "CROWCONTROL_SHOW_TOTAL_REQUESTS";
+        public const string MinimumBitsToSkip = "CROWCONTROL_MINIMUM_BITS_TO_SKIP";
+        public const string EffectTime = "CROWCONTROL_EFFECT_TIME";
+        public const string Enabled = "CROWCONTROL_ENABLED";
+        public const string ChannelName = "CROWCONTROL_CHANNELNAME";
         public const string ReconnectOnDisconnect = "RECONNECT_ON_DISCONNECT";
         public const string Connect = "CROWCONTROL_CONNECT";
         public const string Disconnect = "CROWCONTROL_DISCONNECT";

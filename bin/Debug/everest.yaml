@@ -3,7 +3,7 @@
   DLL: websocket-sharp.dll
       
 - Name: CrowControl
-  Version: 1.0.4
+  Version: 1.0.5
   DLL: CrowControl.dll
   Dependencies:
     - Name: Everest

@@ -40,6 +40,7 @@ namespace Celeste.Mod.CrowControl
         private static MiniTextbox currentMiniTextBox;
 
         private ActionHelper actionHelper;
+        
 
         public CrowControlModule()
         {
@@ -378,7 +379,16 @@ namespace Celeste.Mod.CrowControl
                         Vector2 cameraPosInLevel = currentLevel.Camera.Position - currentLevel.LevelOffset;
                         Vector2 seekerDrawPos = (levelPos - cameraPosInLevel) * 6;
 
-                        Monocle.Draw.SpriteBatch.DrawString(Monocle.Draw.DefaultFont, name, seekerDrawPos + new Vector2(-(Monocle.Draw.DefaultFont.MeasureString(name).X / 2) - 20, -95), Color.White, 0f, Vector2.Zero, 2f, Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
+                        Vector2 drawPos = new Vector2(-(Monocle.Draw.DefaultFont.MeasureString(name).X / 2) - 20, -95) + seekerDrawPos;
+                        Vector2 mirrorDrawPos = new Vector2(-drawPos.X + (320f * 5.5f), drawPos.Y);
+                        if (!Settings.MirrorEnabled)
+                        {
+                            Monocle.Draw.SpriteBatch.DrawString(Monocle.Draw.DefaultFont, name, drawPos, Color.White, 0f, Vector2.Zero, 2f, Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
+                        }
+                        else 
+                        {
+                            Monocle.Draw.SpriteBatch.DrawString(Monocle.Draw.DefaultFont, name, mirrorDrawPos, Color.White, 0f, Vector2.Zero, 2f, Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
+                        }
                     }
                 }
             }
