@@ -357,6 +357,10 @@ namespace Celeste.Mod.CrowControl
             {
                 return MessageType.FISH;
             }
+            else if (command.IndexOf("wind", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return MessageType.WIND;
+            }
             else if (command.IndexOf("archie", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 return MessageType.ARCHIE;

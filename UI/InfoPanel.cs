@@ -30,6 +30,7 @@ namespace Celeste.Mod.CrowControl
         private string doubleDashText;
         private string godModeText;
         private string fishText;
+        private string windText;
         private List<string> texts = new List<string>();
 
         public InfoPanel(CrowControlSettings settings, TimerHelper timerHelper)
@@ -256,6 +257,15 @@ namespace Celeste.Mod.CrowControl
             {
                 fishText = null;
             }
+            //wind
+            if (settings.Wind)
+            {
+                windText = "Wind (" + settings.CurrentWindVote + "/" + settings.WindVoteLimit + ")";
+            }
+            else
+            {
+                windText = null;
+            }
 
             //add em to list
             if (connectedText != null)
@@ -325,6 +335,10 @@ namespace Celeste.Mod.CrowControl
             if (fishText != null) 
             {
                 texts.Add(fishText);
+            }
+            if (windText != null) 
+            {
+                texts.Add(windText);
             }
         }
 

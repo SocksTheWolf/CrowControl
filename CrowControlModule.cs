@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using MonoMod.Utils;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
+using System.Linq;
 
 namespace Celeste.Mod.CrowControl
 {
@@ -229,9 +230,17 @@ namespace Celeste.Mod.CrowControl
             spawnHelper.spawnedSnowballs.Clear();
             spawnHelper.spawnedOshiros.Clear();
 
+            DisableWind();
+
             ascending = false;
 
             orig(self, at, dir);
+        }
+
+        private void DisableWind() 
+        {
+            currentLevel.Foreground.Backdrops.RemoveAll(backdrop => backdrop.GetType() == typeof(CrowControlWindSnowFG));
+            Settings.WindEnabled = false;
         }
 
         private void SeekerSpawnTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -253,7 +262,7 @@ namespace Celeste.Mod.CrowControl
 
             if (spawnHelper.spawnedSnowballs.Count >= 1) 
             {
-                spawnHelper.SpawnSnowball(false);
+                spawnHelper.SpawnSnowball(false, null);
             }
 
             if (spawnHelper.spawnedOshiros.Count >= 1) 
@@ -265,6 +274,8 @@ namespace Celeste.Mod.CrowControl
             {
                 self.Dashes = 2;
             }
+
+            DisableWind();
 
             orig(self);
         }
@@ -375,20 +386,21 @@ namespace Celeste.Mod.CrowControl
                     {
                         string name = nameObj.Name;
 
-                        Vector2 levelPos = seeker.Position - currentLevel.LevelOffset;
-                        Vector2 cameraPosInLevel = currentLevel.Camera.Position - currentLevel.LevelOffset;
-                        Vector2 seekerDrawPos = (levelPos - cameraPosInLevel) * 6;
+                        DrawTextOverObject(name, seeker.Position);
+                    }
+                }
+            }
 
-                        Vector2 drawPos = new Vector2(-(Monocle.Draw.DefaultFont.MeasureString(name).X / 2) - 20, -95) + seekerDrawPos;
-                        Vector2 mirrorDrawPos = new Vector2(-drawPos.X + (320f * 5.5f), drawPos.Y);
-                        if (!Settings.MirrorEnabled)
-                        {
-                            Monocle.Draw.SpriteBatch.DrawString(Monocle.Draw.DefaultFont, name, drawPos, Color.White, 0f, Vector2.Zero, 2f, Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
-                        }
-                        else 
-                        {
-                            Monocle.Draw.SpriteBatch.DrawString(Monocle.Draw.DefaultFont, name, mirrorDrawPos, Color.White, 0f, Vector2.Zero, 2f, Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
-                        }
+            if (Settings.ShowSnowballNames) 
+            {
+                foreach (Snowball snowball in spawnHelper.spawnedSnowballs) 
+                {
+                    SnowballName nameObj = snowball.Get<SnowballName>();
+                    if (nameObj != null) 
+                    {
+                        string name = nameObj.Name;
+
+                        DrawTextOverObject(name, snowball.Position);
                     }
                 }
             }
@@ -396,6 +408,24 @@ namespace Celeste.Mod.CrowControl
             Monocle.Draw.SpriteBatch.End();
 
             orig(self, scene);
+        }
+
+        private void DrawTextOverObject(string name, Vector2 objectPos) 
+        {
+            Vector2 levelPos = objectPos - currentLevel.LevelOffset;
+            Vector2 cameraPosInLevel = currentLevel.Camera.Position - currentLevel.LevelOffset;
+            Vector2 seekerDrawPos = (levelPos - cameraPosInLevel) * 6;
+
+            Vector2 drawPos = new Vector2(-(Monocle.Draw.DefaultFont.MeasureString(name).X / 2) - 20, -95) + seekerDrawPos;
+            Vector2 mirrorDrawPos = new Vector2(-drawPos.X + (320f * 5.5f), drawPos.Y);
+            if (!Settings.MirrorEnabled)
+            {
+                Monocle.Draw.SpriteBatch.DrawString(Monocle.Draw.DefaultFont, name, drawPos, Color.White, 0f, Vector2.Zero, 2f, Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
+            }
+            else
+            {
+                Monocle.Draw.SpriteBatch.DrawString(Monocle.Draw.DefaultFont, name, mirrorDrawPos, Color.White, 0f, Vector2.Zero, 2f, Microsoft.Xna.Framework.Graphics.SpriteEffects.None, 0f);
+            }
         }
 
         private void Level_Update(On.Celeste.Level.orig_Update orig, Level self)
@@ -537,6 +567,42 @@ namespace Celeste.Mod.CrowControl
                 birdy.Caw().MoveNext();
                 cawTimer.Start();
             }   
+        }
+
+        List<string> windVotes = new List<string>();
+        private void CheckForWindMessages(string parameter) 
+        {
+            if (parameter.IndexOf("left", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                windVotes.Add("left");
+            }
+            else if (parameter.IndexOf("right", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                windVotes.Add("right");
+            }
+            else if (parameter.IndexOf("up", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                windVotes.Add("up");
+            }
+            else if (parameter.IndexOf("down", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                windVotes.Add("down");
+            }
+        }
+
+        private string GetWindMessageWinner() 
+        {
+            string winner = "right";
+
+            var item = windVotes.GroupBy(i => i).OrderByDescending(grp => grp.Count()).Select(grp => grp.Key).Where(x => x != null).First();
+
+            if (item == "left" || item == "right" || item == "down" || item == "up") 
+            {
+                winner = item;
+            }
+
+            windVotes.Clear();
+            return winner;
         }
 
         public void OnCustomRewardMessage(ChatMessage msg)
@@ -696,7 +762,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         else
                         {
-                            actionHelper.SnowballAction();
+                            actionHelper.SnowballAction(msg.Username);
                             Settings.CurrentSnowballVote = 0;
                         }
                         break;
@@ -731,6 +797,18 @@ namespace Celeste.Mod.CrowControl
                         {
                             actionHelper.FishAction();
                             Settings.CurrentFishVote = 0;
+                        }
+                        break;
+                    case MessageType.WIND:
+                        CheckForWindMessages(msg.CustomRewardParameter);
+                        if (Settings.CurrentWindVote < Settings.WindVoteLimit - 1)
+                        {
+                            Settings.CurrentWindVote++;
+                        }
+                        else
+                        {
+                            actionHelper.WindAction(GetWindMessageWinner());
+                            Settings.CurrentWindVote = 0;
                         }
                         break;
                     case MessageType.ARCHIE:
@@ -783,7 +861,7 @@ namespace Celeste.Mod.CrowControl
                         actionHelper.OshiroAction();
                         break;
                     case MessageType.SNOWBALL:
-                        actionHelper.SnowballAction();
+                        actionHelper.SnowballAction(msg.Username);
                         break;
                     case MessageType.DOUBLEDASH:
                         actionHelper.DoubleDashAction();
@@ -793,6 +871,9 @@ namespace Celeste.Mod.CrowControl
                         break;
                     case MessageType.FISH:
                         actionHelper.FishAction();
+                        break;
+                    case MessageType.WIND:
+                        actionHelper.WindAction(msg.CustomRewardParameter);
                         break;
                     case MessageType.ARCHIE:
                         ArchieAction();
@@ -911,6 +992,12 @@ namespace Celeste.Mod.CrowControl
                     break;
                 case MessageType.FISH:
                     if (Settings.Fish) 
+                    {
+                        return true;
+                    }
+                    break;
+                case MessageType.WIND:
+                    if (Settings.Wind) 
                     {
                         return true;
                     }

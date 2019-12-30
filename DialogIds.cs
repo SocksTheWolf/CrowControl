@@ -70,6 +70,7 @@
         //SNOWBALL
         public const string Snowball = "CROWCONTROL_OPTIONS_SNOWBALL";
         public const string SnowballVoteLimit = "CROWCONTROL_OPTIONS_SNOWBALL_VOTE_LIMIT";
+        public const string ShowSnowballNames = "CROWCONTROL_OPTIONS_SHOW_SNOWBALL_NAMES";
 
         //DOUBLEDASH
         public const string DoubleDash = "CROWCONTROL_OPTIONS_DOUBLE_DASH";
@@ -82,5 +83,9 @@
         //FISH
         public const string Fish = "CROWCONTROL_OPTIONS_FISH";
         public const string FishVoteLimit = "CROWCONTROL_OPTIONS_FISH_VOTE_LIMIT";
+
+        //WIND
+        public const string Wind = "CROWCONTROL_OPTIONS_WIND";
+        public const string WindVoteLimit = "CROWCONTROL_OPTIONS_WIND_VOTE_LIMIT";
     }
 }

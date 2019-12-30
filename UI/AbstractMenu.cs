@@ -3,10 +3,6 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Celeste.Mod.CrowControl
 {
@@ -23,7 +19,7 @@ namespace Celeste.Mod.CrowControl
         private readonly string menuName;
         private readonly string buttonName;
         private Action backToParentMenu;
-        private object[] parameters;
+        private object[] parameters = null;
 
         /// <summary>
         /// Builds a submenu. The names expected here are dialog IDs.

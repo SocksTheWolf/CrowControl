@@ -106,6 +106,7 @@ namespace Celeste.Mod.CrowControl
         //SNOWBALL
         [SettingIgnore] public bool Snowball { get; set; } = true;
         [SettingIgnore] public int SnowballVoteLimit { get; set; } = 1;
+        [SettingIgnore] public bool ShowSnowballNames { get; set; } = true;
 
         [YamlIgnore] [SettingIgnore] public int CurrentSnowballVote { get; set; } = 0;
 
@@ -127,6 +128,14 @@ namespace Celeste.Mod.CrowControl
         [SettingIgnore] public int FishVoteLimit { get; set; } = 1;
 
         [YamlIgnore] [SettingIgnore] public int CurrentFishVote { get; set; } = 0;
+
+        //WIND
+        [SettingIgnore] public bool Wind { get; set; } = true;
+        [SettingIgnore] public int WindVoteLimit { get; set; } = 1;
+
+        [YamlIgnore] [SettingIgnore] public bool WindEnabled { get; set; } = false;
+
+        [YamlIgnore] [SettingIgnore] public int CurrentWindVote { get; set; } = 0;
 
         //ARCHIE
         [YamlIgnore] [SettingIgnore] public bool ArchieEnabled { get; set; } = false;

@@ -76,6 +76,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\CrowControlWindSnowFG.cs" />
     <Compile Include="Components\SeekerName.cs" />
     <Compile Include="Components\SnowballName.cs" />
     <Compile Include="CrowControlModule.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="UI\OuiCrowControlSubmenu.cs" />
     <Compile Include="UI\TextMenuExt.cs" />
     <Compile Include="UI\TextMenuOptionExt.cs" />
+    <Compile Include="WindType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Dialog\English.txt">

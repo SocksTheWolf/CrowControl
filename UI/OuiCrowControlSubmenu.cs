@@ -59,6 +59,7 @@ namespace Celeste.Mod.CrowControl
         //SNOWBALL
         private TextMenu.Option<bool> snowballEnabledOption;
         private TextMenu.Option<int> snowballVoteLimitOption;
+        private TextMenu.Option<bool> snowballShowSnowballNamesOption;
 
         //DOUBLE DASH
         private TextMenu.Option<bool> doubleDashEnabledOption;
@@ -71,6 +72,10 @@ namespace Celeste.Mod.CrowControl
         //FISH
         private TextMenu.Option<bool> fishEnabledOption;
         private TextMenu.Option<int> fishVoteLimitOption;
+
+        //WIND
+        private TextMenu.Option<bool> windEnabledOption;
+        private TextMenu.Option<int> windVoteLimitOption;
 
         public OuiCrowControlSubmenu() : base("CROWCONTROL_COMMAND_SETTINGS", null) { }
 
@@ -147,8 +152,10 @@ namespace Celeste.Mod.CrowControl
             //SNOWBALL
             snowballEnabledOption = new TextMenuExt.OnOff(Dialog.Clean(DialogIds.Snowball), Settings.Snowball, true).Change(i => Settings.Snowball = i);
             snowballVoteLimitOption = new TextMenuExt.Slider(Dialog.Clean(DialogIds.SnowballVoteLimit), i => i.ToString(), 1, 100, Settings.SnowballVoteLimit, 1).Change(i => Settings.SnowballVoteLimit = i);
+            snowballShowSnowballNamesOption = new TextMenuExt.OnOff(Dialog.Clean(DialogIds.ShowSnowballNames), Settings.ShowSnowballNames, true).Change(i => Settings.ShowSnowballNames = i);
             menu.Add(snowballEnabledOption);
             menu.Add(snowballVoteLimitOption);
+            menu.Add(snowballShowSnowballNamesOption);
 
             //DOUBLE DASH
             doubleDashEnabledOption = new TextMenuExt.OnOff(Dialog.Clean(DialogIds.DoubleDash), Settings.DoubleDash, true).Change(i => Settings.DoubleDash = i);
@@ -167,6 +174,12 @@ namespace Celeste.Mod.CrowControl
             fishVoteLimitOption = new TextMenuExt.Slider(Dialog.Clean(DialogIds.FishVoteLimit), i => i.ToString(), 1, 100, Settings.FishVoteLimit, 1).Change(i => Settings.FishVoteLimit = i);
             menu.Add(fishEnabledOption);
             menu.Add(fishVoteLimitOption);
+
+            //WIND
+            windEnabledOption = new TextMenuExt.OnOff(Dialog.Clean(DialogIds.Wind), Settings.Wind, true).Change(i => Settings.Wind = i);
+            windVoteLimitOption = new TextMenuExt.Slider(Dialog.Clean(DialogIds.WindVoteLimit), i => i.ToString(), 1, 100, Settings.WindVoteLimit, 1).Change(i => Settings.WindVoteLimit = i);
+            menu.Add(windEnabledOption);
+            menu.Add(windVoteLimitOption);
         }
 
         protected override void gotoMenu(Overworld overworld)

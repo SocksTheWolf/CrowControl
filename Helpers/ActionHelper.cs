@@ -125,11 +125,11 @@ namespace Celeste.Mod.CrowControl
             SpawnHelper.SpawnOshiro(true);
         }
 
-        public void SnowballAction()
+        public void SnowballAction(string name)
         {
             Module.BirdCaw();
 
-            SpawnHelper.SpawnSnowball(true);
+            SpawnHelper.SpawnSnowball(true, name);
         }
 
         public void DoubleDashAction()
@@ -157,6 +157,51 @@ namespace Celeste.Mod.CrowControl
 
             Console.WriteLine("spawn fish");
             SpawnHelper.SpawnFish();
+        }
+
+        public void WindAction(string parameter) 
+        {
+            Console.WriteLine("wind action parameter: " + parameter);
+
+            WindController.Patterns pattern = WindController.Patterns.Right;
+
+            if (parameter.IndexOf("left", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                pattern = WindController.Patterns.Left;
+            }
+            else if (parameter.IndexOf("right", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                pattern = WindController.Patterns.Right;
+            }
+            else if (parameter.IndexOf("up", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                pattern = WindController.Patterns.Up;
+            }
+            else if (parameter.IndexOf("down", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                pattern = WindController.Patterns.Down;
+            }
+
+            if (!Settings.WindEnabled)
+            {
+                currentLevel.Foreground.Backdrops.Add(new CrowControlWindSnowFG() { Alpha = 0f });
+                Audio.SetAmbience("event:/env/amb/04_main", true);
+
+                WindController controller = currentLevel.Entities.FindFirst<WindController>();
+
+                if (controller == null)
+                {
+                    controller = new WindController(pattern);
+                    controller.SetStartPattern();
+                    currentLevel.Add(controller);
+                }
+                else
+                {
+                    controller.SetPattern(pattern);
+                }
+
+                Settings.WindEnabled = true;
+            }
         }
     }
 }

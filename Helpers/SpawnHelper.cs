@@ -98,7 +98,7 @@ namespace Celeste.Mod.CrowControl
             currentLevel.Add(oshiro);
         }
 
-        public void SpawnSnowball(bool addToList)
+        public void SpawnSnowball(bool addToList, string name)
         {
             if (currentLevel == null)
             {
@@ -106,6 +106,8 @@ namespace Celeste.Mod.CrowControl
             }
 
             Snowball snowball = new Snowball();
+            SnowballName snowballName = new SnowballName(true, true, name);
+            snowball.Add(snowballName);
             if (addToList)
             {
                 spawnedSnowballs.Add(snowball);
