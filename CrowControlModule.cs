@@ -569,7 +569,7 @@ namespace Celeste.Mod.CrowControl
             }   
         }
 
-        List<string> windVotes = new List<string>();
+        private List<string> windVotes = new List<string>();
         private void CheckForWindMessages(string parameter) 
         {
             if (parameter.IndexOf("left", StringComparison.OrdinalIgnoreCase) >= 0)

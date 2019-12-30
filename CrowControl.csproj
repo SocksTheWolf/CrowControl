@@ -108,7 +108,6 @@
     <Compile Include="UI\OuiCrowControlSubmenu.cs" />
     <Compile Include="UI\TextMenuExt.cs" />
     <Compile Include="UI\TextMenuOptionExt.cs" />
-    <Compile Include="WindType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Dialog\English.txt">

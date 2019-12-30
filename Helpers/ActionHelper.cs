@@ -161,7 +161,7 @@ namespace Celeste.Mod.CrowControl
 
         public void WindAction(string parameter) 
         {
-            Console.WriteLine("wind action parameter: " + parameter);
+            Module.BirdCaw();
 
             WindController.Patterns pattern = WindController.Patterns.Right;
 
