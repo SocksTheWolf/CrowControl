@@ -106,6 +106,12 @@ namespace Celeste.Mod.CrowControl
                 nameObj.Name = null;
             }
 
+            foreach (Snowball seeker in spawnHelper.spawnedSnowballs)
+            {
+                SnowballName nameObj = seeker.Get<SnowballName>();
+                nameObj.Name = null;
+            }
+
             return orig(self, direction, evenIfInvincible, registerDeathInStats);
         }
 

@@ -76,6 +76,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\ColdBumper.cs" />
     <Compile Include="Components\CrowControlWindSnowFG.cs" />
     <Compile Include="Components\SeekerName.cs" />
     <Compile Include="Components\SnowballName.cs" />

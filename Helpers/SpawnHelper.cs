@@ -15,7 +15,7 @@ namespace Celeste.Mod.CrowControl
         public bool extendedPathfinder = false;
         private Random rand;
 
-        private Bumper currentBumper;
+        private ColdBumper currentBumper;
 
         public List<Seeker> spawnedSeekers = new List<Seeker>();
         public List<Snowball> spawnedSnowballs = new List<Snowball>();
@@ -125,22 +125,18 @@ namespace Celeste.Mod.CrowControl
             }
 
             Vector2 offset = new Vector2(rand.Next(-8, 8), rand.Next(-8, 8));
-            currentBumper = new Bumper(ply.Position + offset, Vector2.Zero);
-
-            /* This doesn't do it
-            FieldInfo fireMode = typeof(Bumper).GetField("fireMode", BindingFlags.NonPublic | BindingFlags.Instance);
-            fireMode.SetValue(currentBumper, false);
-            Console.WriteLine(fireMode.GetValue(currentBumper));
-            */
-
+            currentBumper = new ColdBumper(ply.Position + offset, Vector2.Zero);
             currentBumper.Active = false;
-
             currentLevel.Add(currentBumper);
         }
 
         public void RemoveCurrentBumper() 
         {
-            currentLevel.Remove(currentBumper);
+            if (currentBumper != null)
+            {
+                currentBumper.Visible = false;
+                currentLevel.Remove(currentBumper);
+            }
         }
 
         public void SpawnFish() 
