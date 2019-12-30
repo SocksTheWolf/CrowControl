@@ -195,10 +195,8 @@ namespace Celeste.Mod.CrowControl
 
         public void CreateCommandSettingsEntry(TextMenu textMenu, bool inGame) 
         {
-            textMenu.Add(new TextMenu.Button(Dialog.Clean(DialogIds.CommandSettings)).Pressed(() =>
-            {
-                OuiModOptions.Instance.Overworld.Goto<OuiCrowControlSubmenu>();
-            }));
+            TextMenu.Button button = AbstractSubmenu.BuildOpenMenuButton<OuiCrowControlSubmenu>(textMenu, inGame, () => OuiModOptions.Instance.Overworld.Goto<OuiModOptions>(), new object[] { DialogIds.CommandSettings });
+            textMenu.Add(button);
         }
 
         public void StopThread()

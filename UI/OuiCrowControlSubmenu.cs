@@ -77,7 +77,9 @@ namespace Celeste.Mod.CrowControl
         private TextMenu.Option<bool> windEnabledOption;
         private TextMenu.Option<int> windVoteLimitOption;
 
-        public OuiCrowControlSubmenu() : base("CROWCONTROL_COMMAND_SETTINGS", null) { }
+        public OuiCrowControlSubmenu() : base(DialogIds.CommandSettings, DialogIds.CommandSettings) 
+        {
+        }
 
         protected override void addOptionsToMenu(TextMenu menu, bool inGame, object[] parameters)
         {
@@ -184,7 +186,7 @@ namespace Celeste.Mod.CrowControl
 
         protected override void gotoMenu(Overworld overworld)
         {
-            overworld.Goto<OuiModOptions>();
+            overworld.Goto<OuiCrowControlSubmenu>();
         }
     }
 }

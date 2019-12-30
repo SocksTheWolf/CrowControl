@@ -106,6 +106,7 @@
     <Compile Include="TwitchLib\UserType.cs" />
     <Compile Include="UI\AbstractMenu.cs" />
     <Compile Include="UI\OuiCrowControlSubmenu.cs" />
+    <Compile Include="UI\TextMenuButtonExt.cs" />
     <Compile Include="UI\TextMenuExt.cs" />
     <Compile Include="UI\TextMenuOptionExt.cs" />
   </ItemGroup>

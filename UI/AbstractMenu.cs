@@ -131,13 +131,80 @@ namespace Celeste.Mod.CrowControl
         /// </summary>
         protected abstract void gotoMenu(Overworld overworld);
 
+
+        public static TextMenuButtonExt BuildOpenMenuButton<T>(TextMenu parentMenu, bool inGame, Action backToParentMenu, object[] parameters) where T : AbstractSubmenu
+        {
+            return OuiModOptions.Instance.Overworld.GetUI<T>().buildOpenMenuButton(parentMenu, inGame, backToParentMenu, parameters);
+        }
+
         /// <summary>
-        /// Builds a button that opens the menu with specified type when hit.
+        /// Method getting called on the Oui instance when the method just above is called.
         /// </summary>
-        /// <param name="parentMenu">The parent's TextMenu</param>
-        /// <param name="inGame">true if we are in the pause menu, false if we are in the overworld</param>
-        /// <param name="backToParentMenu">Action that will be called to go back to the parent menu</param>
-        /// <param name="parameters">some arbitrary parameters that can be used to build the menu</param>
-        /// <returns>A button you can insert in another menu</returns>
+        private TextMenuButtonExt buildOpenMenuButton(TextMenu parentMenu, bool inGame, Action backToParentMenu, object[] parameters)
+        {
+            if (inGame)
+            {
+                Level level = Engine.Scene as Level;
+
+                // this is how it works in-game
+                return (TextMenuButtonExt)new TextMenuButtonExt(getButtonName(parameters)).Pressed(() =>
+                {
+                    // set up the menu instance
+                    this.backToParentMenu = backToParentMenu;
+                    this.parameters = parameters;
+
+                    // close the parent menu
+                    parentMenu.RemoveSelf();
+
+                    // create our menu and prepare it
+                    TextMenu thisMenu = buildMenu(true);
+
+                    // notify the pause menu that we aren't in the main menu anymore (hides the strawberry tracker)
+                    bool comesFromPauseMainMenu = level.PauseMainMenuOpen;
+                    level.PauseMainMenuOpen = false;
+
+                    thisMenu.OnESC = thisMenu.OnCancel = () =>
+                    {
+                        // close this menu
+                        Audio.Play(SFX.ui_main_button_back);
+                        thisMenu.CloseAndRun(Everest.SaveSettings(), () =>
+                        {
+                            // and open the parent menu back (this should work, right? we only removed it from the scene earlier, but it still exists and is intact)
+                            // "what could possibly go wrong?" ~ famous last words
+                            level.Add(parentMenu);
+
+                            // restore the pause "main menu" flag to make strawberry tracker appear again if required.
+                            level.PauseMainMenuOpen = comesFromPauseMainMenu;
+                        });
+                    };
+
+                    thisMenu.OnPause = () =>
+                    {
+                        // we're unpausing, so close that menu, and save the mod Settings because the Mod Options menu won't do that for us
+                        Audio.Play(SFX.ui_main_button_back);
+                        thisMenu.CloseAndRun(Everest.SaveSettings(), () =>
+                        {
+                            level.Paused = false;
+                            Engine.FreezeTimer = 0.15f;
+                        });
+                    };
+
+                    // finally, add the menu to the scene
+                    level.Add(thisMenu);
+                });
+            }
+            else
+            {
+                // this is how it works in the main menu: way more simply than the in-game mess.
+                return (TextMenuButtonExt)new TextMenuButtonExt(getButtonName(parameters)).Pressed(() =>
+                {
+                    // set up the menu instance
+                    this.backToParentMenu = backToParentMenu;
+                    this.parameters = parameters;
+
+                    gotoMenu(OuiModOptions.Instance.Overworld);
+                });
+            }
+        }
     }
 }
