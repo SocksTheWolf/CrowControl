@@ -402,7 +402,7 @@ namespace Celeste.Mod.CrowControl
                 foreach (Snowball snowball in spawnHelper.spawnedSnowballs) 
                 {
                     SnowballName nameObj = snowball.Get<SnowballName>();
-                    if (nameObj != null) 
+                    if (nameObj.Name != null) 
                     {
                         string name = nameObj.Name;
 
