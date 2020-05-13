@@ -17,6 +17,7 @@ namespace Celeste.Mod.CrowControl
         [SettingRange(1, 5)] [SettingName(DialogIds.InfoPanelSize)] public int InfoPanelSize { get; set; } = 1;
         [SettingName(DialogIds.ShowTotalRequests)] public bool ShowTotalRequests { get; set; }
         [SettingRange(1, 200)] [SettingName(DialogIds.MinimumBitsToSkip)] public int MinimumBitsToSkip { get; set; } = 50;
+        [SettingName(DialogIds.RequireChannelPoints)] public bool RequireChannelPoints { get; set; } = true;
         [SettingRange(1, 120)] [SettingName(DialogIds.EffectTime)] public int EffectTime { get; set; } = 30;
         [SettingName(DialogIds.ReconnectOnDisconnect)] public bool ReconnectOnDisconnect { get; set; } = true;
         [SettingName(DialogIds.ChannelName)] public string ChannelName { get; set; } = "";
@@ -294,13 +295,17 @@ namespace Celeste.Mod.CrowControl
                 Console.WriteLine("PING IS NOW");
             }
 
-            if (chatMsg.IsCustomReward && chatMsg.Bits < MinimumBitsToSkip)
+            if (chatMsg.IsCustomReward && chatMsg.Bits < MinimumBitsToSkip && RequireChannelPoints)
             {
                 CrowControlModule.OnCustomRewardMessage(chatMsg);
             }
             else if (chatMsg.Bits >= MinimumBitsToSkip)
             {
                 CrowControlModule.OnMessageWithBits(chatMsg);
+            }
+            else if(!RequireChannelPoints)
+            {
+                CrowControlModule.OnCustomRewardMessage(chatMsg);
             }
         }
     }

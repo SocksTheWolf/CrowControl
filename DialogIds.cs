@@ -8,6 +8,7 @@
         public const string InfoPanelSize = "CROWCONTROL_INFO_PANEL_SIZE";
         public const string ShowTotalRequests = "CROWCONTROL_SHOW_TOTAL_REQUESTS";
         public const string MinimumBitsToSkip = "CROWCONTROL_MINIMUM_BITS_TO_SKIP";
+        public const string RequireChannelPoints = "CROWCONTROL_REQUIRE_CHANNEL_POINTS";
         public const string EffectTime = "CROWCONTROL_EFFECT_TIME";
         public const string Enabled = "CROWCONTROL_ENABLED";
         public const string ChannelName = "CROWCONTROL_CHANNELNAME";
