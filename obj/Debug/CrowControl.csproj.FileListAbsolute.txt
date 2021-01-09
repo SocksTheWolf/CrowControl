@@ -44,3 +44,12 @@ F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.csproj.CopyComplete
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.dll
 F:\SteamLibrary\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.pdb
+E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\bin\Debug\Dialog\English.txt
+E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\bin\Debug\Graphics\Atlases\Gui\emoji\crowboy.png
+E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\bin\Debug\CrowControl.dll
+E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\bin\Debug\CrowControl.pdb
+E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.csprojAssemblyReference.cache
+E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.csproj.CoreCompileInputs.cache
+E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.csproj.CopyComplete
+E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.dll
+E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.pdb

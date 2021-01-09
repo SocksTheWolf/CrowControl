@@ -19,6 +19,7 @@ namespace Celeste.Mod.CrowControl
         [SettingRange(1, 200)] [SettingName(DialogIds.MinimumBitsToSkip)] public int MinimumBitsToSkip { get; set; } = 50;
         [SettingName(DialogIds.RequireChannelPoints)] public bool RequireChannelPoints { get; set; } = true;
         [SettingRange(1, 120)] [SettingName(DialogIds.EffectTime)] public int EffectTime { get; set; } = 30;
+        [SettingName(DialogIds.MuteCrowSounds)] public bool MuteCrowSounds { get; set; } = false;
         [SettingName(DialogIds.ReconnectOnDisconnect)] public bool ReconnectOnDisconnect { get; set; } = true;
         [SettingName(DialogIds.ChannelName)] public string ChannelName { get; set; } = "";
         [SettingName(DialogIds.Connect)] public string Connect { get; set; } = "";
@@ -140,6 +141,8 @@ namespace Celeste.Mod.CrowControl
 
         //ARCHIE
         [YamlIgnore] [SettingIgnore] public bool ArchieEnabled { get; set; } = false;
+
+        //TWITCH AUTH
         [YamlIgnore] [SettingIgnore] public string TwitchUsername { get; private set; } = "justinfan";
 
         private Thread webSocketThread;

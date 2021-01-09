@@ -293,7 +293,10 @@ namespace Celeste.Mod.CrowControl
 
         private void CawTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            Audio.Play(SFX.game_gen_bird_squawk);
+            if (!Settings.MuteCrowSounds)
+            {
+                Audio.Play(SFX.game_gen_bird_squawk);
+            }
             cawTimer.Stop();
         }
 

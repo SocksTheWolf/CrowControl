@@ -10,6 +10,7 @@
         public const string MinimumBitsToSkip = "CROWCONTROL_MINIMUM_BITS_TO_SKIP";
         public const string RequireChannelPoints = "CROWCONTROL_REQUIRE_CHANNEL_POINTS";
         public const string EffectTime = "CROWCONTROL_EFFECT_TIME";
+        public const string MuteCrowSounds = "CROWCONTROL_MUTE_CROW_SOUNDS";
         public const string Enabled = "CROWCONTROL_ENABLED";
         public const string ChannelName = "CROWCONTROL_CHANNELNAME";
         public const string ReconnectOnDisconnect = "RECONNECT_ON_DISCONNECT";
