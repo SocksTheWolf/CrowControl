@@ -7,6 +7,7 @@ using MonoMod.Utils;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using System.Linq;
+using CrowControl.Helpers;
 
 namespace Celeste.Mod.CrowControl
 {
@@ -29,14 +30,11 @@ namespace Celeste.Mod.CrowControl
 
         private InfoPanel infoPanel;
 
+        public BirdyHelper BirdyHelper { get; set; }
         private TimerHelper timerHelper;
         private SpawnHelper spawnHelper;
 
-        private static TimerPlus cawTimer;
         private static TimerPlus seekerSpawnTimer;
-
-        private BirdNPC birdy = null;
-        private Color birdColor = new Color(255, 255, 255);
 
         private static MiniTextbox currentMiniTextBox;
 
@@ -55,6 +53,7 @@ namespace Celeste.Mod.CrowControl
                 return;
             }
 
+            BirdyHelper = new BirdyHelper(Settings);
             timerHelper = new TimerHelper();
             spawnHelper = new SpawnHelper();
             actionHelper = new ActionHelper(timerHelper, spawnHelper);
@@ -62,9 +61,6 @@ namespace Celeste.Mod.CrowControl
             effectTime = Settings.EffectTime;
 
             infoPanel = new InfoPanel(Settings, timerHelper);
-
-            cawTimer = new TimerPlus(500);
-            cawTimer.Elapsed += CawTimer_Elapsed;
 
             seekerSpawnTimer = new TimerPlus(250);
             seekerSpawnTimer.Elapsed += SeekerSpawnTimer_Elapsed;
@@ -291,42 +287,11 @@ namespace Celeste.Mod.CrowControl
             spawnHelper.extendedPathfinder = false;
         }
 
-        private void CawTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            if (!Settings.MuteCrowSounds)
-            {
-                Audio.Play(SFX.game_gen_bird_squawk);
-            }
-            cawTimer.Stop();
-        }
-
         private void Bumper_OnPlayer(On.Celeste.Bumper.orig_OnPlayer orig, Bumper self, Player player)
         {
             spawnHelper.RemoveCurrentBumper();
 
             orig(self, player);
-        }
-
-        /// <summary>
-        /// Creates a new bird object for use in the renderer
-        /// </summary>
-        private void NewBirdy()
-        {
-            if (birdy == null && currentLevel != null)
-            {
-                birdy = new BirdNPC(ply.Position, BirdNPC.Modes.None);
-                birdy.Sprite.Color = birdColor;
-                birdy.Sprite.Effects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
-                if (!Settings.MirrorEnabled)
-                {
-                    birdy.Sprite.Effects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
-                    birdy.Position = currentLevel.Camera.Position + new Vector2(infoPanel.uiPos.X, infoPanel.uiPos.Y - 182f);
-                }
-                else
-                {
-                    birdy.Position = new Vector2(30, 30);
-                }
-            }
         }
 
         private void GameplayRenderer_Render(On.Celeste.GameplayRenderer.orig_Render orig, GameplayRenderer self, Monocle.Scene scene)
@@ -337,29 +302,7 @@ namespace Celeste.Mod.CrowControl
                 return;
             }
 
-            if (birdy == null && currentLevel != null && Settings.EnableInfoPanel)
-            {
-                NewBirdy();
-            }
-            else if (birdy != null && Settings.EnableInfoPanel)
-            {
-                if (!Settings.MirrorEnabled)
-                {
-                    birdy.Sprite.Effects = Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally;
-                    birdy.Position = currentLevel.Camera.Position + new Vector2(infoPanel.uiPos.X, infoPanel.uiPos.Y - 182f);
-                }
-                else
-                {
-                    birdy.Sprite.Effects = Microsoft.Xna.Framework.Graphics.SpriteEffects.None;
-                    birdy.Position = currentLevel.Camera.Position + new Vector2(-infoPanel.uiPos.X + 320f, infoPanel.uiPos.Y - 182f);
-                }
-                birdy.Sprite.Color = birdColor;
-                birdy.Depth = -10000;
-                if (currentLevel.Entities.AmountOf<BirdNPC>() < 2)
-                {
-                    currentLevel.Add(birdy);
-                }
-            }
+            BirdyHelper.HandleGameplayRenderer_Render(ply, currentLevel, infoPanel);
 
             orig(self, scene);
         }
@@ -561,21 +504,6 @@ namespace Celeste.Mod.CrowControl
         {
             Settings.ReconnectOnDisconnect = false;
             Settings.StopThread();
-        }
-
-        private void ArchieAction()
-        {
-            BirdCaw();
-            birdColor = new Color(100, 230, 50);
-        }
-
-        public void BirdCaw()
-        {
-            if (birdy != null)
-            {
-                birdy.Caw().MoveNext();
-                cawTimer.Start();
-            }   
         }
 
         private List<string> windVotes = new List<string>();
@@ -821,7 +749,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         break;
                     case MessageType.ARCHIE:
-                        ArchieAction();
+                        BirdyHelper.ArchieAction();
                         break;
                 }
             }
@@ -885,7 +813,7 @@ namespace Celeste.Mod.CrowControl
                         actionHelper.WindAction(msg.CustomRewardParameter);
                         break;
                     case MessageType.ARCHIE:
-                        ArchieAction();
+                        BirdyHelper.ArchieAction();
                         break;
                 }
             }

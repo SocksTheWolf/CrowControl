@@ -84,6 +84,7 @@
     <Compile Include="CrowControlSettings.cs" />
     <Compile Include="DialogIds.cs" />
     <Compile Include="Helpers\ActionHelper.cs" />
+    <Compile Include="Helpers\BirdyHelper.cs" />
     <Compile Include="Helpers\SpawnHelper.cs" />
     <Compile Include="Helpers\TimerHelper.cs" />
     <Compile Include="UI\InfoPanel.cs" />

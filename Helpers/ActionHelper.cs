@@ -37,7 +37,7 @@ namespace Celeste.Mod.CrowControl
 
         public void DieAction()
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
             if (!ply.Dead && !currentLevel.Transitioning)
             {
                 ply.Die(Vector2.Zero);
@@ -54,21 +54,21 @@ namespace Celeste.Mod.CrowControl
 
         public void BumpAction()
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
 
             SpawnHelper.SpawnBumper();
         }
 
         public void SeekerAction(string name)
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
 
             SpawnHelper.SpawnSeeker(true, name);
         }
 
         public void MirrorAction()
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
             Settings.MirrorEnabled = true;
             TimerHelper.mirrorTimer.Stop();
             TimerHelper.mirrorTimer.Start();
@@ -76,7 +76,7 @@ namespace Celeste.Mod.CrowControl
 
         public void KevinAction()
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
             if (currentLevel != null && !currentLevel.Transitioning)
             {
                 if (ply != null)
@@ -88,7 +88,7 @@ namespace Celeste.Mod.CrowControl
 
         public void DisableGrabAction()
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
             Settings.DisableGrabEnabled = true;
             TimerHelper.disableGrabTimer.Stop();
             TimerHelper.disableGrabTimer.Start();
@@ -96,7 +96,7 @@ namespace Celeste.Mod.CrowControl
 
         public void InvisibleAction()
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
             Settings.InvisibleEnabled = true;
             TimerHelper.invisibleTimer.Stop();
             TimerHelper.invisibleTimer.Start();
@@ -104,7 +104,7 @@ namespace Celeste.Mod.CrowControl
 
         public void InvertAction()
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
             Settings.InvertEnabled = true;
             TimerHelper.invertTimer.Stop();
             TimerHelper.invertTimer.Start();
@@ -112,7 +112,7 @@ namespace Celeste.Mod.CrowControl
 
         public void LowFrictionAction()
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
             Settings.LowFrictionEnabled = true;
             TimerHelper.lowFrictionTimer.Stop();
             TimerHelper.lowFrictionTimer.Start();
@@ -120,21 +120,21 @@ namespace Celeste.Mod.CrowControl
 
         public void OshiroAction()
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
 
             SpawnHelper.SpawnOshiro(true);
         }
 
         public void SnowballAction(string name)
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
 
             SpawnHelper.SpawnSnowball(true, name);
         }
 
         public void DoubleDashAction()
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
 
             if (ply != null)
             {
@@ -145,7 +145,7 @@ namespace Celeste.Mod.CrowControl
 
         public void GodModeAction()
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
             Settings.GodModeEnabled = true;
             TimerHelper.godModeTimer.Stop();
             TimerHelper.godModeTimer.Start();
@@ -153,7 +153,7 @@ namespace Celeste.Mod.CrowControl
 
         public void FishAction() 
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
 
             Console.WriteLine("spawn fish");
             SpawnHelper.SpawnFish();
@@ -161,7 +161,7 @@ namespace Celeste.Mod.CrowControl
 
         public void WindAction(string parameter) 
         {
-            Module.BirdCaw();
+            Module.BirdyHelper.BirdCaw();
 
             WindController.Patterns pattern = WindController.Patterns.Right;
 

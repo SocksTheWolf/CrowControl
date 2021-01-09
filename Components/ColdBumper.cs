@@ -38,7 +38,7 @@ namespace Celeste.Mod.CrowControl
 
         private Wiggler hitWiggler;
 
-        private Vector2 hitDir;
+        private Vector2 hitDir = new Vector2();
 
         private bool visible = true;
 
