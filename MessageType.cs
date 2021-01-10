@@ -18,6 +18,8 @@
         GODMODE,
         FISH,
         WIND,
-        ARCHIE
+        FEATHER,
+        ARCHIE,
+        NONE
     }
 }

@@ -361,6 +361,10 @@ namespace Celeste.Mod.CrowControl
             {
                 return MessageType.WIND;
             }
+            else if (command.IndexOf("feather", StringComparison.OrdinalIgnoreCase) >= 0) 
+            {
+                return MessageType.FEATHER;
+            }
             else if (command.IndexOf("archie", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 return MessageType.ARCHIE;
@@ -368,10 +372,10 @@ namespace Celeste.Mod.CrowControl
 
             if (command == "") 
             {
-                return MessageType.BUMP;
+                return MessageType.NONE;
             }
 
-            return MessageType.BUMP;
+            return MessageType.NONE;
         }
 
         private static double ConvertBitsToUsd(int bits)

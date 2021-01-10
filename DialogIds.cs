@@ -89,5 +89,9 @@
         //WIND
         public const string Wind = "CROWCONTROL_OPTIONS_WIND";
         public const string WindVoteLimit = "CROWCONTROL_OPTIONS_WIND_VOTE_LIMIT";
+
+        //FEATHER
+        public const string Feather = "CROWCONTROL_OPTIONS_FEATHER";
+        public const string FeatherVoteLimit = "CROWCONTROL_OPTIONS_FEATHER_VOTE_LIMIT";
     }
 }

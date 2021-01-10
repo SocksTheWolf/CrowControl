@@ -155,7 +155,6 @@ namespace Celeste.Mod.CrowControl
         {
             Module.BirdyHelper.BirdCaw();
 
-            Console.WriteLine("spawn fish");
             SpawnHelper.SpawnFish();
         }
 
@@ -202,6 +201,11 @@ namespace Celeste.Mod.CrowControl
 
                 Settings.WindEnabled = true;
             }
+        }
+
+        public void FeatherAction() 
+        {
+            SpawnHelper.SpawnFeatherOnPlayer();
         }
     }
 }

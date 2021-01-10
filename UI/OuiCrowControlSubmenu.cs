@@ -77,6 +77,10 @@ namespace Celeste.Mod.CrowControl
         private TextMenu.Option<bool> windEnabledOption;
         private TextMenu.Option<int> windVoteLimitOption;
 
+        //FEATHER
+        private TextMenu.Option<bool> featherEnabledOption;
+        private TextMenu.Option<int> featherVoteLimitOption;
+
         public OuiCrowControlSubmenu() : base(DialogIds.CommandSettings, DialogIds.CommandSettings) 
         {
         }
@@ -182,6 +186,12 @@ namespace Celeste.Mod.CrowControl
             windVoteLimitOption = new TextMenuExt.Slider(Dialog.Clean(DialogIds.WindVoteLimit), i => i.ToString(), 1, 100, Settings.WindVoteLimit, 1).Change(i => Settings.WindVoteLimit = i);
             menu.Add(windEnabledOption);
             menu.Add(windVoteLimitOption);
+
+            //FEATHER
+            featherEnabledOption = new TextMenuExt.OnOff(Dialog.Clean(DialogIds.Feather), Settings.Feather, true).Change(i => Settings.Feather = i);
+            featherVoteLimitOption = new TextMenuExt.Slider(Dialog.Clean(DialogIds.FeatherVoteLimit), i => i.ToString(), 1, 100, Settings.FeatherVoteLimit, 1).Change(i => Settings.FeatherVoteLimit = i);
+            menu.Add(featherEnabledOption);
+            menu.Add(featherVoteLimitOption);
         }
 
         protected override void gotoMenu(Overworld overworld)

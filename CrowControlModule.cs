@@ -748,6 +748,17 @@ namespace Celeste.Mod.CrowControl
                             Settings.CurrentWindVote = 0;
                         }
                         break;
+                    case MessageType.FEATHER:
+                        if (Settings.CurrentFeatherVote < Settings.FeatherVoteLimit - 1)
+                        {
+                            Settings.CurrentFeatherVote++;
+                        }
+                        else 
+                        {
+                            actionHelper.FeatherAction();
+                            Settings.CurrentFeatherVote = 0;
+                        }
+                        break;
                     case MessageType.ARCHIE:
                         BirdyHelper.ArchieAction();
                         break;
@@ -811,6 +822,9 @@ namespace Celeste.Mod.CrowControl
                         break;
                     case MessageType.WIND:
                         actionHelper.WindAction(msg.CustomRewardParameter);
+                        break;
+                    case MessageType.FEATHER:
+                        actionHelper.FeatherAction();
                         break;
                     case MessageType.ARCHIE:
                         BirdyHelper.ArchieAction();
@@ -939,8 +953,15 @@ namespace Celeste.Mod.CrowControl
                         return true;
                     }
                     break;
+                case MessageType.FEATHER:
+                    if (Settings.Feather) 
+                    {
+                        return true;
+                    }
+                    break;
                 case MessageType.ARCHIE:
                     return true;
+                
             }
 
             return false;

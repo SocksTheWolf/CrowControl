@@ -41,7 +41,7 @@ namespace Celeste.Mod.CrowControl
         [SettingIgnore] public bool Blur { get; set; } = true;
         [SettingIgnore] public int BlurVoteLimit { get; set; } = 8;
 
-        [YamlIgnore] [SettingIgnore][SettingName(DialogIds.BlurLevel)] public int BlurLevel { get; set; } = 1;
+        [YamlIgnore] [SettingIgnore] public int BlurLevel { get; set; } = 1;
         [YamlIgnore] [SettingIgnore] public int CurrentBlurVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool BlurEnabled { get; set; } = false;
 
@@ -134,10 +134,13 @@ namespace Celeste.Mod.CrowControl
         //WIND
         [SettingIgnore] public bool Wind { get; set; } = true;
         [SettingIgnore] public int WindVoteLimit { get; set; } = 1;
-
         [YamlIgnore] [SettingIgnore] public bool WindEnabled { get; set; } = false;
-
         [YamlIgnore] [SettingIgnore] public int CurrentWindVote { get; set; } = 0;
+
+        //FEATHER
+        [SettingIgnore] public bool Feather { get; set; } = true;
+        [SettingIgnore] public int FeatherVoteLimit { get; set; } = 1;
+        [YamlIgnore] [SettingIgnore] public int CurrentFeatherVote { get; set; } = 0;
 
         //ARCHIE
         [YamlIgnore] [SettingIgnore] public bool ArchieEnabled { get; set; } = false;

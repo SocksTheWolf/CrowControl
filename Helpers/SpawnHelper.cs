@@ -168,6 +168,17 @@ namespace Celeste.Mod.CrowControl
             }
         }
 
+        public void SpawnFeatherOnPlayer() 
+        {
+            if (currentLevel == null) 
+            {
+                return;
+            }
+
+            FlyFeather feather = new FlyFeather(ply.Position, false, true);
+            currentLevel.Add(feather);
+        }
+
         private EntityData generateBasicEntityData(Level level, int entityNumber)
         {
             EntityData entityData = new EntityData();

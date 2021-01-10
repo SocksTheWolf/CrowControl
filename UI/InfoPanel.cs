@@ -31,6 +31,7 @@ namespace Celeste.Mod.CrowControl
         private string godModeText;
         private string fishText;
         private string windText;
+        private string featherText;
         private List<string> texts = new List<string>();
 
         public InfoPanel(CrowControlSettings settings, TimerHelper timerHelper)
@@ -266,6 +267,15 @@ namespace Celeste.Mod.CrowControl
             {
                 windText = null;
             }
+            //feather
+            if (settings.Feather)
+            {
+                featherText = "Feather (" + settings.CurrentFeatherVote + "/" + settings.FeatherVoteLimit + ")";
+            }
+            else 
+            {
+                featherText = null;
+            }
 
             //add em to list
             if (connectedText != null)
@@ -339,6 +349,10 @@ namespace Celeste.Mod.CrowControl
             if (windText != null) 
             {
                 texts.Add(windText);
+            }
+            if (featherText != null) 
+            {
+                texts.Add(featherText);
             }
         }
 
