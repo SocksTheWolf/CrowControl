@@ -53,3 +53,5 @@ E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\obj\Debug
 E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.csproj.CopyComplete
 E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.dll
 E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\obj\Debug\CrowControl.pdb
+E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\bin\Debug\websocket-sharp.dll
+E:\Program Files (x86)\Steam\steamapps\common\Celeste\Mods\CrowControl\bin\Debug\websocket-sharp.pdb

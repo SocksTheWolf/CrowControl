@@ -835,21 +835,27 @@ namespace Celeste.Mod.CrowControl
 
         public void OnConnect() 
         {
-            Audio.Play(SFX.ui_main_message_confirm);
-            if (currentLevel != null) 
+            if (!Settings.IsReconnecting)
             {
-                currentMiniTextBox = new MiniTextbox(DialogIds.TextBoxConnected);
-                currentLevel.Add(currentMiniTextBox);
+                Audio.Play(SFX.ui_main_message_confirm);
+                if (currentLevel != null)
+                {
+                    currentMiniTextBox = new MiniTextbox(DialogIds.TextBoxConnected);
+                    currentLevel.Add(currentMiniTextBox);
+                }
             }
         }
 
         public void OnDisconnect() 
         {
-            Audio.Play(SFX.ui_main_message_confirm);
-            if (currentLevel != null)
+            if (!Settings.IsReconnecting)
             {
-                currentMiniTextBox = new MiniTextbox(DialogIds.TextBoxDisconnected);
-                currentLevel.Add(currentMiniTextBox);
+                Audio.Play(SFX.ui_main_message_confirm);
+                if (currentLevel != null)
+                {
+                    currentMiniTextBox = new MiniTextbox(DialogIds.TextBoxDisconnected);
+                    currentLevel.Add(currentMiniTextBox);
+                }
             }
         }
 

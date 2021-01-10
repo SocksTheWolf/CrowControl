@@ -28,6 +28,7 @@ namespace Celeste.Mod.CrowControl
         [SettingName(DialogIds.CommandSettings)] public string CommandSettings { get; set; }
 
         [YamlIgnore] [SettingIgnore] public bool Connected { get; set; } = false;
+        [YamlIgnore] [SettingIgnore] public bool IsReconnecting { get; set; } = false;
         [YamlIgnore] [SettingIgnore] public int TotalRequests { get; set; } = 0;
 
         //command options
@@ -212,14 +213,12 @@ namespace Celeste.Mod.CrowControl
             {
                 webSocketThread.Abort();
                 webSocketThread = null;
-
-                Console.WriteLine("stopped thread");
             }
         }
 
         public void StartWebSocket()
         {
-            using (var ws = new WebSocket("wss://irc-ws.chat.twitch.tv:443"))
+            using (var ws = new WebSocket("ws://irc-ws.chat.twitch.tv:80"))
             {
                 ws.Compression = CompressionMethod.None;
 
@@ -239,6 +238,8 @@ namespace Celeste.Mod.CrowControl
                 ws.Send("JOIN #" + ChannelName.ToLower());
 
                 Console.WriteLine("JOINING");
+
+                IsReconnecting = false;
 
                 while (Enabled)
                 {
@@ -271,15 +272,19 @@ namespace Celeste.Mod.CrowControl
         {
             Console.WriteLine("Error! " + e.Message);
             Connected = false;
+            IsReconnecting = true;
         }
 
         private void Ws_OnClose(object sender, CloseEventArgs e)
         {
             Console.WriteLine("WebSocket closed!");
+            if (ReconnectOnDisconnect)
+            {
+                IsReconnecting = true;
+            }
 
             CrowControlModule.OnDisconnect();
             Connected = false;
-
             ReconnectIfDisconnected();
         }
 
