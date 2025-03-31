@@ -27,14 +27,14 @@ jobs:
     - name: Install dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build Source/CelesteMod.csproj --configuration Release --no-restore
+      run: dotnet build Source/CrowControl.csproj --configuration Release --no-restore
       env:
         CelestePrefix: ${{ github.workspace }}/lib-stripped
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: CelesteMod
+        name: CrowControl
         path: |
           everest.yaml
           bin
