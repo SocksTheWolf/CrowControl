@@ -7,6 +7,7 @@ using MonoMod.Utils;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using System.Linq;
+using CrowControl;
 using CrowControl.Helpers;
 
 namespace Celeste.Mod.CrowControl
@@ -226,12 +227,16 @@ namespace Celeste.Mod.CrowControl
             }
         }
 
-        private void Level_NextLevel(On.Celeste.Level.orig_NextLevel orig, Level self, Vector2 at, Vector2 dir)
+        private void ClearAllSpawns() 
         {
             spawnHelper.spawnedSeekers.Clear();
             spawnHelper.spawnedSnowballs.Clear();
             spawnHelper.spawnedOshiros.Clear();
+        }
 
+        private void Level_NextLevel(On.Celeste.Level.orig_NextLevel orig, Level self, Vector2 at, Vector2 dir)
+        {
+            ClearAllSpawns();
             DisableWind();
 
             ascending = false;
@@ -256,20 +261,31 @@ namespace Celeste.Mod.CrowControl
         /// </summary>
         private void Player_IntroRespawnEnd(On.Celeste.Player.orig_IntroRespawnEnd orig, Player self)
         {
-            if (spawnHelper.spawnedSeekers.Count >= 1)
+            if (Settings.ClearSpawnsOnDeath)
             {
-                seekerSpawnTimer.Stop();
-                seekerSpawnTimer.Start();
+                // This may not be totally absolutely necessary, but should clean up any excess memory.
+                // I'm not sure how celeste handles death.
+                spawnHelper.ClearSeekers();
+                spawnHelper.ClearSnowballs();
+                spawnHelper.ClearOshiros();
             }
-
-            if (spawnHelper.spawnedSnowballs.Count >= 1) 
+            else
             {
-                spawnHelper.SpawnSnowball(false, null);
-            }
+                if (spawnHelper.spawnedSeekers.Count >= 1)
+                {
+                    seekerSpawnTimer.Stop();
+                    seekerSpawnTimer.Start();
+                }
 
-            if (spawnHelper.spawnedOshiros.Count >= 1) 
-            {
-                spawnHelper.SpawnOshiro(false);
+                if (spawnHelper.spawnedSnowballs.Count >= 1) 
+                {
+                    spawnHelper.SpawnSnowball(false, null);
+                }
+
+                if (spawnHelper.spawnedOshiros.Count >= 1) 
+                {
+                    spawnHelper.SpawnOshiro(false);
+                }
             }
 
             if (twoDashesOnSpawn) 
@@ -500,10 +516,11 @@ namespace Celeste.Mod.CrowControl
         }
 
         //Disable enabled to stop the webhook thread
-        private void Engine_OnExiting(Engine.orig_OnExiting orig, Monocle.Engine self, object sender, EventArgs args)
+        static private void Engine_OnExiting(Engine.orig_OnExiting orig, Monocle.Engine self, object sender, EventArgs args)
         {
             Settings.ReconnectOnDisconnect = false;
             Settings.StopThread();
+            orig(self, sender, args);
         }
 
         private List<string> windVotes = new List<string>();
@@ -556,18 +573,20 @@ namespace Celeste.Mod.CrowControl
                 return;
             }
 
-            Settings.TotalRequests++;
-
             if (CheckIfMessageTypeEnabled(messageType))
             {
+                Settings.TotalRequests++;
+                var currentVoteCounts = Settings.currentVoteCounts[messageType];
+                if (!msg.IsCustomReward && Settings.RequireUniqueUsers) {
+                    if (currentVoteCounts.Contains(msg.UserId)) {
+                        return;
+                    }
+                }
+                currentVoteCounts.Add(msg.UserId);
                 switch (messageType)
                 {
                     case MessageType.DIE:
-                        if (Settings.CurrentDieVote < Settings.DieVoteLimit - 1)
-                        {
-                            Settings.CurrentDieVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.DieVoteLimit)
                         {
                             if (!ply.Dead)
                             {
@@ -576,187 +595,123 @@ namespace Celeste.Mod.CrowControl
                             else
                             {
                                 // if player is already dead set so it only needs 1 more vote
-                                Settings.CurrentDieVote = Settings.DieVoteLimit - 1;
+                                currentVoteCounts.RemoveAt(currentVoteCounts.Count - 1);
+                                return;
                             }
-                            Settings.CurrentDieVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.BLUR:
-                        if (Settings.CurrentBlurVote < Settings.BlurVoteLimit - 1)
-                        {
-                            Settings.CurrentBlurVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.BlurVoteLimit)
                         {
                             actionHelper.BlurAction();
-
-                            Settings.CurrentBlurVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.BUMP:
-                        if (Settings.CurrentBumpVote < Settings.BumpVoteLimit - 1)
-                        {
-                            Settings.CurrentBumpVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.BumpVoteLimit)
                         {
                             actionHelper.BumpAction();
-                            Settings.CurrentBumpVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.SEEKER:
-                        if (Settings.CurrentSeekerVote < Settings.SeekerVoteLimit - 1)
-                        {
-                            Settings.CurrentSeekerVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.SeekerVoteLimit)
                         {
                             actionHelper.SeekerAction(msg.Username);
-                            Settings.CurrentSeekerVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.MIRROR:
-                        if (Settings.CurrentMirrorVote < Settings.MirrorVoteLimit - 1)
-                        {
-                            Settings.CurrentMirrorVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.MirrorVoteLimit)
                         {
                             actionHelper.MirrorAction();
-                            Settings.CurrentMirrorVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.KEVIN:
-                        if (Settings.CurrentKevinVote < Settings.KevinVoteLimit - 1)
-                        {
-                            Settings.CurrentKevinVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.KevinVoteLimit)
                         {
                             actionHelper.KevinAction();
-                            Settings.CurrentKevinVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.DISABLEGRAB:
-                        if (Settings.CurrentDisableGrabVote < Settings.DisableGrabVoteLimit - 1)
-                        {
-                            Settings.CurrentDisableGrabVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.DisableGrabVoteLimit)
                         {
                             actionHelper.DisableGrabAction();
-                            Settings.CurrentDisableGrabVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.INVISIBLE:
-                        if (Settings.CurrentInvisibleVote < Settings.InvisibleVoteLimit - 1)
-                        {
-                            Settings.CurrentInvisibleVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.InvisibleVoteLimit)
                         {
                             actionHelper.InvisibleAction();
-                            Settings.CurrentInvisibleVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.INVERT:
-                        if (Settings.CurrentInvertVote < Settings.InvertVoteLimit - 1)
-                        {
-                            Settings.CurrentInvertVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.InvertVoteLimit)
                         {
                             actionHelper.InvertAction();
-                            Settings.CurrentInvertVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.LOWFRICTION:
-                        if (Settings.CurrentLowFrictionVote < Settings.LowFrictionVoteLimit - 1)
-                        {
-                            Settings.CurrentLowFrictionVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.LowFrictionVoteLimit)
                         {
                             actionHelper.LowFrictionAction();
-                            Settings.CurrentLowFrictionVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.OSHIRO:
-                        if (Settings.CurrentOshiroVote < Settings.OshiroVoteLimit - 1)
-                        {
-                            Settings.CurrentOshiroVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.OshiroVoteLimit)
                         {
                             actionHelper.OshiroAction();
-                            Settings.CurrentOshiroVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.SNOWBALL:
-                        if (Settings.CurrentSnowballVote < Settings.SnowballVoteLimit - 1)
-                        {
-                            Settings.CurrentSnowballVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.SnowballVoteLimit)
                         {
                             actionHelper.SnowballAction(msg.Username);
-                            Settings.CurrentSnowballVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.DOUBLEDASH:
-                        if (Settings.CurrentDoubleDashVote < Settings.DoubleDashVoteLimit - 1)
-                        {
-                            Settings.CurrentDoubleDashVote++;
-                        }
-                        else 
+                        if (currentVoteCounts.Count >= Settings.DoubleDashVoteLimit)
                         {
                             actionHelper.DoubleDashAction();
-                            Settings.CurrentDoubleDashVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.GODMODE:
-                        if (Settings.CurrentGodModeVote < Settings.GodModeVoteLimit - 1)
-                        {
-                            Settings.CurrentGodModeVote++;
-                        }
-                        else 
+                        if (currentVoteCounts.Count >= Settings.GodModeVoteLimit)
                         {
                             actionHelper.GodModeAction();
-                            Settings.CurrentGodModeVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.FISH:
-                        if (Settings.CurrentFishVote < Settings.FishVoteLimit - 1)
-                        {
-                            Settings.CurrentFishVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.FishVoteLimit)
                         {
                             actionHelper.FishAction();
-                            Settings.CurrentFishVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.WIND:
                         CheckForWindMessages(msg.CustomRewardParameter);
-                        if (Settings.CurrentWindVote < Settings.WindVoteLimit - 1)
-                        {
-                            Settings.CurrentWindVote++;
-                        }
-                        else
+                        if (currentVoteCounts.Count >= Settings.WindVoteLimit)
                         {
                             actionHelper.WindAction(GetWindMessageWinner());
-                            Settings.CurrentWindVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.FEATHER:
-                        if (Settings.CurrentFeatherVote < Settings.FeatherVoteLimit - 1)
-                        {
-                            Settings.CurrentFeatherVote++;
-                        }
-                        else 
+                        if (currentVoteCounts.Count >= Settings.FeatherVoteLimit)
                         {
                             actionHelper.FeatherAction();
-                            Settings.CurrentFeatherVote = 0;
+                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.ARCHIE:

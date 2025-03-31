@@ -4,6 +4,8 @@ using WebSocketSharp;
 using System.Threading;
 using Celeste.Mod.UI;
 using Monocle;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Celeste.Mod.CrowControl
 {
@@ -20,6 +22,8 @@ namespace Celeste.Mod.CrowControl
         [SettingName(DialogIds.RequireChannelPoints)] public bool RequireChannelPoints { get; set; } = true;
         [SettingRange(1, 120)] [SettingName(DialogIds.EffectTime)] public int EffectTime { get; set; } = 30;
         [SettingName(DialogIds.MuteCrowSounds)] public bool MuteCrowSounds { get; set; } = false;
+        [SettingName(DialogIds.RequireUniqueUsers)] public bool RequireUniqueUsers { get; set; } = false;
+        [SettingName(DialogIds.ClearSpawnsOnDeath)] public bool ClearSpawnsOnDeath { get; set; } = true;
         [SettingName(DialogIds.ReconnectOnDisconnect)] public bool ReconnectOnDisconnect { get; set; } = true;
         [SettingName(DialogIds.ChannelName)] public string ChannelName { get; set; } = "";
         [SettingName(DialogIds.Connect)] public string Connect { get; set; } = "";
@@ -36,112 +40,87 @@ namespace Celeste.Mod.CrowControl
         [SettingIgnore] public bool Die { get; set; } = true;
         [SettingIgnore] public int DieVoteLimit { get; set; } = 10;
 
-        [YamlIgnore] [SettingIgnore] public int CurrentDieVote { get; set; } = 0;
-
         //BLUR
         [SettingIgnore] public bool Blur { get; set; } = true;
         [SettingIgnore] public int BlurVoteLimit { get; set; } = 8;
 
         [YamlIgnore] [SettingIgnore] public int BlurLevel { get; set; } = 1;
-        [YamlIgnore] [SettingIgnore] public int CurrentBlurVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool BlurEnabled { get; set; } = false;
 
         //BUMP
         [SettingIgnore] public bool Bump { get; set; } = true;
         [SettingIgnore] public int BumpVoteLimit { get; set; } = 1;
 
-        [YamlIgnore] [SettingIgnore] public int CurrentBumpVote { get; set; } = 0;
-
         //SEEKER
         [SettingIgnore] public bool Seeker { get; set; } = true;
         [SettingIgnore] public int SeekerVoteLimit { get; set; } = 1;
         [SettingIgnore] public bool ShowSeekerNames { get; set; } = true;
 
-        [YamlIgnore] [SettingIgnore] public int CurrentSeekerVote { get; set; } = 0;
-
         //MIRROR
         [SettingIgnore] public bool Mirror { get; set; } = true;
         [SettingIgnore] public int MirrorVoteLimit { get; set; } = 8;
 
-        [YamlIgnore] [SettingIgnore] public int CurrentMirrorVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool MirrorEnabled { get; set; } = false;
 
         //KEVIN
         [SettingIgnore] public bool Kevin { get; set; } = true;
         [SettingIgnore] public int KevinVoteLimit { get; set; } = 2;
 
-        [YamlIgnore] [SettingIgnore] public int CurrentKevinVote { get; set; } = 0;
-
         //DISABLE GRAB
         [SettingIgnore] public bool DisableGrab { get; set; } = true;
         [SettingIgnore] public int DisableGrabVoteLimit { get; set; } = 8;
 
-        [YamlIgnore] [SettingIgnore] public int CurrentDisableGrabVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool DisableGrabEnabled { get; set; } = false;
 
         //INVISIBLE
         [SettingIgnore] public bool Invisible { get; set; } = true;
         [SettingIgnore] public int InvisibleVoteLimit { get; set; } = 8;
 
-        [YamlIgnore] [SettingIgnore] public int CurrentInvisibleVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool InvisibleEnabled { get; set; } = false;
 
         //INVERT
         [SettingIgnore] public bool Invert { get; set; } = true;
         [SettingIgnore] public int InvertVoteLimit { get; set; } = 12;
 
-        [YamlIgnore] [SettingIgnore] public int CurrentInvertVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool InvertEnabled { get; set; } = false;
 
         //LOW FRICTION
         [SettingIgnore] public bool LowFriction { get; set; } = true;
         [SettingIgnore] public int LowFrictionVoteLimit { get; set; } = 8;
 
-        [YamlIgnore] [SettingIgnore] public int CurrentLowFrictionVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool LowFrictionEnabled { get; set; } = false;
 
         //OSHIRO
         [SettingIgnore] public bool Oshiro { get; set; } = true;
         [SettingIgnore] public int OshiroVoteLimit { get; set; } = 2;
 
-        [YamlIgnore] [SettingIgnore] public int CurrentOshiroVote { get; set; } = 0;
-
         //SNOWBALL
         [SettingIgnore] public bool Snowball { get; set; } = true;
         [SettingIgnore] public int SnowballVoteLimit { get; set; } = 1;
         [SettingIgnore] public bool ShowSnowballNames { get; set; } = true;
 
-        [YamlIgnore] [SettingIgnore] public int CurrentSnowballVote { get; set; } = 0;
-
         //DOUBLEDASH
         [SettingIgnore] public bool DoubleDash { get; set; } = true;
         [SettingIgnore] public int DoubleDashVoteLimit { get; set; } = 1;
-
-        [YamlIgnore] [SettingIgnore] public int CurrentDoubleDashVote { get; set; } = 0;
 
         //GODMODE
         [SettingIgnore] public bool GodMode { get; set; } = true;
         [SettingIgnore] public int GodModeVoteLimit { get; set; } = 20;
 
-        [YamlIgnore] [SettingIgnore] public int CurrentGodModeVote { get; set; } = 0;
         [YamlIgnore] [SettingIgnore] public bool GodModeEnabled { get; set; } = false;
 
         //FISH
         [SettingIgnore] public bool Fish { get; set; } = true;
         [SettingIgnore] public int FishVoteLimit { get; set; } = 1;
 
-        [YamlIgnore] [SettingIgnore] public int CurrentFishVote { get; set; } = 0;
-
         //WIND
         [SettingIgnore] public bool Wind { get; set; } = true;
         [SettingIgnore] public int WindVoteLimit { get; set; } = 1;
         [YamlIgnore] [SettingIgnore] public bool WindEnabled { get; set; } = false;
-        [YamlIgnore] [SettingIgnore] public int CurrentWindVote { get; set; } = 0;
 
         //FEATHER
         [SettingIgnore] public bool Feather { get; set; } = true;
         [SettingIgnore] public int FeatherVoteLimit { get; set; } = 1;
-        [YamlIgnore] [SettingIgnore] public int CurrentFeatherVote { get; set; } = 0;
 
         //ARCHIE
         [YamlIgnore] [SettingIgnore] public bool ArchieEnabled { get; set; } = false;
@@ -152,15 +131,28 @@ namespace Celeste.Mod.CrowControl
         private Thread webSocketThread;
         private Random rand = new Random();
 
+        [YamlIgnore] public Dictionary<MessageType, List<string>> currentVoteCounts = new Dictionary<MessageType, List<string>>();
+
         public CrowControlSettings() 
         {
             int randNum = rand.Next(10000, 99999);
             TwitchUsername += randNum;
+
+            // Dynamically populate the dictionary.
+            var MsgEnumVals = Enum.GetValues(typeof(MessageType)).Cast<MessageType>();
+            foreach (var MsgEnum in MsgEnumVals) {
+                currentVoteCounts[MsgEnum] = new List<string>();
+            }
         }
 
         public void EffectTimeChange()
         {
             CrowControlModule.GetTimerHelper().ChangeTimerIntervals();
+        }
+
+        public void ClearAllVotes()
+        {
+            
         }
 
         public void CreateChannelNameEntry(TextMenu textMenu, bool inGame) 
@@ -211,7 +203,8 @@ namespace Celeste.Mod.CrowControl
         {
             if (webSocketThread != null && webSocketThread.IsAlive)
             {
-                webSocketThread.Abort();
+                Enabled = false;
+                webSocketThread.Join();
                 webSocketThread = null;
             }
         }
@@ -261,6 +254,7 @@ namespace Celeste.Mod.CrowControl
 
                     if (webSocketThread == null)
                     {
+                        Enabled = true;
                         webSocketThread = new Thread(StartWebSocket);
                         webSocketThread.Start();
                     }
@@ -306,15 +300,13 @@ namespace Celeste.Mod.CrowControl
                 Console.WriteLine("PING IS NOW");
             }
 
-            if (chatMsg.IsCustomReward && chatMsg.Bits < MinimumBitsToSkip && RequireChannelPoints)
-            {
-                CrowControlModule.OnCustomRewardMessage(chatMsg);
-            }
-            else if (chatMsg.Bits >= MinimumBitsToSkip)
+            if (chatMsg.Bits >= MinimumBitsToSkip && MinimumBitsToSkip > 0)
             {
                 CrowControlModule.OnMessageWithBits(chatMsg);
+                return;
             }
-            else if(!RequireChannelPoints)
+
+            if ((chatMsg.IsCustomReward && RequireChannelPoints) || !RequireChannelPoints)
             {
                 CrowControlModule.OnCustomRewardMessage(chatMsg);
             }

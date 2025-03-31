@@ -36,6 +36,36 @@ namespace Celeste.Mod.CrowControl
             this.currentLevel = currentLevel;
         }
 
+        public void ClearSeekers(bool clearList=true)
+        {
+            if (this.currentLevel != null)
+            {
+                this.currentLevel.Remove(spawnedSeekers);
+                if (clearList)
+                    spawnedSeekers.Clear();
+            }
+        }
+
+        public void ClearSnowballs(bool clearList=true)
+        {
+            if (this.currentLevel != null)
+            {
+                this.currentLevel.Remove(spawnedSnowballs);
+                if (clearList)
+                    spawnedSnowballs.Clear();
+            }
+        }
+
+        public void ClearOshiros(bool clearList=true)
+        {
+            if (this.currentLevel != null)
+            {
+                this.currentLevel.Remove(spawnedOshiros);
+                if (clearList)
+                    spawnedOshiros.Clear();
+            }
+        }
+
         public void SpawnSeeker(bool addToList, string name)
         {
             if (currentLevel == null)
