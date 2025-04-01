@@ -1,0 +1,66 @@
+name: Build Mod
+
+on:
+  push:
+    branches: [ master ]
+    tags:
+        - '*'
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Download Everest stripped lib
+      uses: robinraju/release-downloader@v1.4
+      with:
+        repository: EverestAPI/Everest
+        latest: true
+        fileName: lib-stripped.zip
+
+    - name: Extract lib-stripped.zip
+      run: unzip lib-stripped.zip
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build Source/CrowControl.csproj --configuration Release --no-restore
+      env:
+        CelestePrefix: ${{ github.workspace }}/lib-stripped
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: CrowControl
+        retention-days: 10
+        path: |
+          everest.yaml
+          bin
+          Ahorn/**/*
+          Audio/**/*
+          Dialog/**/*
+          Graphics/**/*
+          Loenn/**/*
+    - name: Make Zip
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: thedoctor0/zip-release@0.7.6
+      with:
+        type: "zip"
+        filename: "CrowControl.zip"
+        exclusions: "/third-party/* /Source/* /lib-stripped/* *.git* *.sln *.md .everestignore *.zip"
+    - name: Make Draft Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "CrowControl.zip"
+        allowUpdates: true
+        generateReleaseNotes: true
+        omitNameDuringUpdate: true
+        makeLatest: "legacy"
+        draft: false

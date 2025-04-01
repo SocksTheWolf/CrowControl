@@ -1,9 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.87
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrowControl", "CrowControl.csproj", "{330D696F-0299-4089-AC02-8365C3875F78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrowControl", "Source\CrowControl.csproj", "{472281A7-9373-412A-8E8E-5B603857A9D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +8,9 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{330D696F-0299-4089-AC02-8365C3875F78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{330D696F-0299-4089-AC02-8365C3875F78}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{330D696F-0299-4089-AC02-8365C3875F78}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{330D696F-0299-4089-AC02-8365C3875F78}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {E1772265-84FE-498D-8CEA-78C096C48933}
+		{472281A7-9373-412A-8E8E-5B603857A9D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{472281A7-9373-412A-8E8E-5B603857A9D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{472281A7-9373-412A-8E8E-5B603857A9D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{472281A7-9373-412A-8E8E-5B603857A9D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -7,9 +7,8 @@ namespace Celeste.Mod.CrowControl
 {
     public class TextMenuOptionExt<T> : TextMenu.Option<T>
     {
-
-        private int lastDir;
-        private float sine;
+        private int _lastDir;
+        private float _sine;
 
         private int defaultIndex;
 
@@ -18,28 +17,27 @@ namespace Celeste.Mod.CrowControl
             this.defaultIndex = defaultIndex;
         }
 
-        // these overrides just allow to maintain lastDir and sine, since I can't access them
+        // these overrides just allow to maintain _lastDir and _sine, since I can't access them
         public override void LeftPressed()
         {
             base.LeftPressed();
-            if (Index > 0) lastDir = -1;
+            if (Index > 0) _lastDir = -1;
         }
         public override void RightPressed()
         {
             base.RightPressed();
-            if (Index < Values.Count - 1) lastDir = 1;
+            if (Index < Values.Count - 1) _lastDir = 1;
         }
         public override void ConfirmPressed()
         {
             base.ConfirmPressed();
-            if (Values.Count == 2) lastDir = (Index == 1) ? 1 : -1;
+            if (Values.Count == 2) _lastDir = (Index == 1) ? 1 : -1;
         }
         public override void Update()
         {
             base.Update();
-            sine += Engine.RawDeltaTime;
+            _sine += Engine.RawDeltaTime;
         }
-
 
         /// <summary>
         /// This is essentially the base method, but with a twist: the non-selected color is not always white.
@@ -53,15 +51,15 @@ namespace Celeste.Mod.CrowControl
             if (Values.Count > 0)
             {
                 float num = RightWidth();
-                ActiveFont.DrawOutline(Values[Index].Item1, position + new Vector2(Container.Width - num * 0.5f + lastDir * ValueWiggler.Value * 8f, 0f), new Vector2(0.5f, 0.5f), Vector2.One * 0.8f, color, 2f, strokeColor);
-                Vector2 vector = Vector2.UnitX * (highlighted ? ((float)Math.Sin(sine * 4f) * 4f) : 0f);
+                ActiveFont.DrawOutline(Values[Index].Item1, position + new Vector2(Container.Width - num * 0.5f + _lastDir * ValueWiggler.Value * 8f, 0f), new Vector2(0.5f, 0.5f), Vector2.One * 0.8f, color, 2f, strokeColor);
+                Vector2 vector = Vector2.UnitX * (highlighted ? ((float)Math.Sin(_sine * 4f) * 4f) : 0f);
                 bool flag = this.Index > 0;
                 Color color2 = flag ? color : (Color.DarkSlateGray * alpha);
-                Vector2 position2 = position + new Vector2(Container.Width - num + 40f + ((lastDir < 0) ? (-ValueWiggler.Value * 8f) : 0f), 0f) - (flag ? vector : Vector2.Zero);
+                Vector2 position2 = position + new Vector2(Container.Width - num + 40f + ((_lastDir < 0) ? (-ValueWiggler.Value * 8f) : 0f), 0f) - (flag ? vector : Vector2.Zero);
                 ActiveFont.DrawOutline("<", position2, new Vector2(0.5f, 0.5f), Vector2.One, color2, 2f, strokeColor);
                 bool flag2 = Index < Values.Count - 1;
                 Color color3 = flag2 ? color : (Color.DarkSlateGray * alpha);
-                Vector2 position3 = position + new Vector2(Container.Width - 40f + ((lastDir > 0) ? (ValueWiggler.Value * 8f) : 0f), 0f) + (flag2 ? vector : Vector2.Zero);
+                Vector2 position3 = position + new Vector2(Container.Width - 40f + ((_lastDir > 0) ? (ValueWiggler.Value * 8f) : 0f), 0f) + (flag2 ? vector : Vector2.Zero);
                 ActiveFont.DrawOutline(">", position3, new Vector2(0.5f, 0.5f), Vector2.One, color3, 2f, strokeColor);
             }
         }

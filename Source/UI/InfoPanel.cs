@@ -77,7 +77,7 @@ namespace Celeste.Mod.CrowControl
             //die
             if (settings.Die)
             {
-                dieText = "Die (" + settings.CurrentDieVote + "/" + settings.DieVoteLimit + ")";
+                dieText = "Die (" + settings.currentVoteCounts[MessageType.DIE].Count + "/" + settings.DieVoteLimit + ")";
             }
             else
             {
@@ -92,7 +92,7 @@ namespace Celeste.Mod.CrowControl
                 }
                 else
                 {
-                    blurText = "Blur (" + settings.CurrentBlurVote + "/" + settings.BlurVoteLimit + ")";
+                    blurText = "Blur (" + settings.currentVoteCounts[MessageType.BLUR].Count + "/" + settings.BlurVoteLimit + ")";
                 }
             }
             else
@@ -102,7 +102,7 @@ namespace Celeste.Mod.CrowControl
             //bump
             if (settings.Bump)
             {
-                bumpText = "Bump (" + settings.CurrentBumpVote + "/" + settings.BumpVoteLimit + ")";
+                bumpText = "Bump (" + settings.currentVoteCounts[MessageType.BUMP].Count + "/" + settings.BumpVoteLimit + ")";
             }
             else
             {
@@ -111,7 +111,7 @@ namespace Celeste.Mod.CrowControl
             //seeker
             if (settings.Seeker)
             {
-                seekerText = "Seeker (" + settings.CurrentSeekerVote + "/" + settings.SeekerVoteLimit + ")";
+                seekerText = "Seeker (" + settings.currentVoteCounts[MessageType.SEEKER].Count + "/" + settings.SeekerVoteLimit + ")";
             }
             else
             {
@@ -126,7 +126,7 @@ namespace Celeste.Mod.CrowControl
                 }
                 else
                 {
-                    mirrorText = "Mirror (" + settings.CurrentMirrorVote + "/" + settings.MirrorVoteLimit + ")";
+                    mirrorText = "Mirror (" + settings.currentVoteCounts[MessageType.MIRROR].Count + "/" + settings.MirrorVoteLimit + ")";
                 }
             }
             else
@@ -136,7 +136,7 @@ namespace Celeste.Mod.CrowControl
             //kevin
             if (settings.Kevin)
             {
-                kevinText = "Kevin (" + settings.CurrentKevinVote + "/" + settings.KevinVoteLimit + ")";
+                kevinText = "Kevin (" + settings.currentVoteCounts[MessageType.KEVIN].Count + "/" + settings.KevinVoteLimit + ")";
             }
             else
             {
@@ -151,7 +151,7 @@ namespace Celeste.Mod.CrowControl
                 }
                 else
                 {
-                    disableGrabText = "Disable Grab (" + settings.CurrentDisableGrabVote + "/" + settings.DisableGrabVoteLimit + ")";
+                    disableGrabText = "Disable Grab (" + settings.currentVoteCounts[MessageType.DISABLEGRAB].Count + "/" + settings.DisableGrabVoteLimit + ")";
                 }
             }
             else
@@ -167,7 +167,7 @@ namespace Celeste.Mod.CrowControl
                 }
                 else
                 {
-                    invisibleText = "Invisible (" + settings.CurrentInvisibleVote + "/" + settings.InvisibleVoteLimit + ")";
+                    invisibleText = "Invisible (" + settings.currentVoteCounts[MessageType.INVISIBLE].Count + "/" + settings.InvisibleVoteLimit + ")";
                 }
             }
             else
@@ -183,7 +183,7 @@ namespace Celeste.Mod.CrowControl
                 }
                 else
                 {
-                    invertText = "Invert (" + settings.CurrentInvertVote + "/" + settings.InvertVoteLimit + ")";
+                    invertText = "Invert (" + settings.currentVoteCounts[MessageType.INVERT].Count + "/" + settings.InvertVoteLimit + ")";
                 }
             }
             else
@@ -199,7 +199,7 @@ namespace Celeste.Mod.CrowControl
                 }
                 else
                 {
-                    lowFrictionText = "Low Friction (" + settings.CurrentLowFrictionVote + "/" + settings.LowFrictionVoteLimit + ")";
+                    lowFrictionText = "Low Friction (" + settings.currentVoteCounts[MessageType.LOWFRICTION].Count + "/" + settings.LowFrictionVoteLimit + ")";
                 }
             }
             else
@@ -209,7 +209,7 @@ namespace Celeste.Mod.CrowControl
             //oshiro
             if (settings.Oshiro)
             {
-                oshiroText = "Oshiro (" + settings.CurrentOshiroVote + "/" + settings.OshiroVoteLimit + ")";
+                oshiroText = "Oshiro (" + settings.currentVoteCounts[MessageType.OSHIRO].Count + "/" + settings.OshiroVoteLimit + ")";
             }
             else
             {
@@ -218,7 +218,7 @@ namespace Celeste.Mod.CrowControl
             //snowball
             if (settings.Snowball)
             {
-                snowballText = "Snowball (" + settings.CurrentSnowballVote + "/" + settings.SnowballVoteLimit + ")";
+                snowballText = "Snowball (" + settings.currentVoteCounts[MessageType.SNOWBALL].Count + "/" + settings.SnowballVoteLimit + ")";
             }
             else 
             {
@@ -227,7 +227,7 @@ namespace Celeste.Mod.CrowControl
             //doubledash
             if (settings.DoubleDash)
             {
-                doubleDashText = "Double Dash (" + settings.CurrentDoubleDashVote + "/" + settings.DoubleDashVoteLimit + ")";
+                doubleDashText = "Double Dash (" + settings.currentVoteCounts[MessageType.DOUBLEDASH].Count + "/" + settings.DoubleDashVoteLimit + ")";
             }
             else 
             {
@@ -242,7 +242,7 @@ namespace Celeste.Mod.CrowControl
                 }
                 else
                 {
-                    godModeText = "God Mode (" + settings.CurrentGodModeVote + "/" + settings.GodModeVoteLimit + ")";
+                    godModeText = "God Mode (" + settings.currentVoteCounts[MessageType.GODMODE].Count + "/" + settings.GodModeVoteLimit + ")";
                 }
             }
             else
@@ -252,7 +252,7 @@ namespace Celeste.Mod.CrowControl
             //fish
             if (settings.Fish)
             {
-                fishText = "Fish (" + settings.CurrentFishVote + "/" + settings.FishVoteLimit + ")";
+                fishText = "Fish (" + settings.currentVoteCounts[MessageType.FISH].Count + "/" + settings.FishVoteLimit + ")";
             }
             else 
             {
@@ -261,7 +261,7 @@ namespace Celeste.Mod.CrowControl
             //wind
             if (settings.Wind)
             {
-                windText = "Wind (" + settings.CurrentWindVote + "/" + settings.WindVoteLimit + ")";
+                windText = "Wind (" + settings.currentVoteCounts[MessageType.WIND].Count + "/" + settings.WindVoteLimit + ")";
             }
             else
             {
@@ -270,7 +270,7 @@ namespace Celeste.Mod.CrowControl
             //feather
             if (settings.Feather)
             {
-                featherText = "Feather (" + settings.CurrentFeatherVote + "/" + settings.FeatherVoteLimit + ")";
+                featherText = "Feather (" + settings.currentVoteCounts[MessageType.FEATHER].Count + "/" + settings.FeatherVoteLimit + ")";
             }
             else 
             {

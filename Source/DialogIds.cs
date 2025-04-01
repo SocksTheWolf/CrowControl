@@ -11,6 +11,8 @@
         public const string RequireChannelPoints = "CROWCONTROL_REQUIRE_CHANNEL_POINTS";
         public const string EffectTime = "CROWCONTROL_EFFECT_TIME";
         public const string MuteCrowSounds = "CROWCONTROL_MUTE_CROW_SOUNDS";
+        public const string RequireUniqueUsers = "CROWCONTROL_REQUIRE_UNIQUE_USERS";
+        public const string ClearSpawnsOnDeath = "CROWCONTROL_CLEAR_SPAWNS_ON_DEATH";
         public const string Enabled = "CROWCONTROL_ENABLED";
         public const string ChannelName = "CROWCONTROL_CHANNELNAME";
         public const string ReconnectOnDisconnect = "RECONNECT_ON_DISCONNECT";
