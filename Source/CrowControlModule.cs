@@ -519,6 +519,7 @@ namespace Celeste.Mod.CrowControl
         static private void Engine_OnExiting(Engine.orig_OnExiting orig, Monocle.Engine self, object sender, EventArgs args)
         {
             Settings.ReconnectOnDisconnect = false;
+            Settings.IsExiting = true;
             Settings.StopThread();
             orig(self, sender, args);
         }

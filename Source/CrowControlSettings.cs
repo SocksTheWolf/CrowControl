@@ -131,6 +131,11 @@ namespace Celeste.Mod.CrowControl
         private Thread webSocketThread;
         private Random rand = new Random();
 
+        // better handle socket disconnections
+        public bool IsExiting = false;
+        private CancellationTokenSource cancelToken;
+        private bool clickedDisconnect = false;
+
         [YamlIgnore] public Dictionary<MessageType, List<string>> currentVoteCounts = new Dictionary<MessageType, List<string>>();
 
         public CrowControlSettings() 
@@ -148,11 +153,6 @@ namespace Celeste.Mod.CrowControl
         public void EffectTimeChange()
         {
             CrowControlModule.GetTimerHelper().ChangeTimerIntervals();
-        }
-
-        public void ClearAllVotes()
-        {
-            
         }
 
         public void CreateChannelNameEntry(TextMenu textMenu, bool inGame) 
@@ -176,6 +176,9 @@ namespace Celeste.Mod.CrowControl
             {
                 if (webSocketThread == null && Enabled)
                 {
+                    IsReconnecting = false;
+                    clickedDisconnect = false;
+                    cancelToken = new CancellationTokenSource();
                     webSocketThread = new Thread(StartWebSocket);
                     webSocketThread.Start();
                 }
@@ -188,6 +191,8 @@ namespace Celeste.Mod.CrowControl
             {
                 if (webSocketThread != null && webSocketThread.IsAlive)
                 {
+                    IsReconnecting = false;
+                    clickedDisconnect = true;
                     StopThread();
                 }
             }));
@@ -203,7 +208,7 @@ namespace Celeste.Mod.CrowControl
         {
             if (webSocketThread != null && webSocketThread.IsAlive)
             {
-                Enabled = false;
+                cancelToken.Cancel();
                 webSocketThread.Join();
                 webSocketThread = null;
             }
@@ -233,17 +238,13 @@ namespace Celeste.Mod.CrowControl
                 Console.WriteLine("JOINING");
 
                 IsReconnecting = false;
-
-                while (Enabled)
-                {
-
-                }
+                cancelToken.Token.WaitHandle.WaitOne();
             }
         }
 
         private void ReconnectIfDisconnected() 
         {
-            if (ReconnectOnDisconnect)
+            if (ReconnectOnDisconnect && !IsExiting && !clickedDisconnect)
             {
                 if (Connected == false)
                 {
@@ -254,7 +255,7 @@ namespace Celeste.Mod.CrowControl
 
                     if (webSocketThread == null)
                     {
-                        Enabled = true;
+                        cancelToken = new CancellationTokenSource();
                         webSocketThread = new Thread(StartWebSocket);
                         webSocketThread.Start();
                     }
@@ -279,7 +280,10 @@ namespace Celeste.Mod.CrowControl
 
             CrowControlModule.OnDisconnect();
             Connected = false;
-            ReconnectIfDisconnected();
+            if (!clickedDisconnect)
+                ReconnectIfDisconnected();
+            // Reset this flag
+            clickedDisconnect = false;
         }
 
         private void Ws_OnOpen(object sender, EventArgs e)
@@ -303,10 +307,8 @@ namespace Celeste.Mod.CrowControl
             if (chatMsg.Bits >= MinimumBitsToSkip && MinimumBitsToSkip > 0)
             {
                 CrowControlModule.OnMessageWithBits(chatMsg);
-                return;
             }
-
-            if ((chatMsg.IsCustomReward && RequireChannelPoints) || !RequireChannelPoints)
+            else if ((chatMsg.IsCustomReward && RequireChannelPoints) || !RequireChannelPoints)
             {
                 CrowControlModule.OnCustomRewardMessage(chatMsg);
             }
