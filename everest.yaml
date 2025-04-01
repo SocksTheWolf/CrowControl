@@ -3,7 +3,7 @@
   DLL: bin/websocket-sharp.dll
       
 - Name: CrowControl
-  Version: 0.1.0
+  Version: 1.1.0
   DLL: bin/CrowControl.dll
   Dependencies:
     - Name: EverestCore
