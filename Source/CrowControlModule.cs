@@ -591,14 +591,13 @@ namespace Celeste.Mod.CrowControl
                             if (!ply.Dead)
                             {
                                 actionHelper.DieAction();
+                                currentVoteCounts.Clear();
                             }
                             else
                             {
                                 // if player is already dead set so it only needs 1 more vote
                                 currentVoteCounts.RemoveAt(currentVoteCounts.Count - 1);
-                                return;
                             }
-                            currentVoteCounts.Clear();
                         }
                         break;
                     case MessageType.BLUR:
