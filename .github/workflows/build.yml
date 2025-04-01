@@ -61,5 +61,6 @@ jobs:
         artifacts: "CrowControl.zip"
         allowUpdates: true
         generateReleaseNotes: true
-        makeLatest: "latest"
-        draft: true
+        omitNameDuringUpdate: true
+        makeLatest: "legacy"
+        draft: false
