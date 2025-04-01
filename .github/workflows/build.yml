@@ -54,7 +54,7 @@ jobs:
         with:
           type: "zip"
           filename: "CrowControl.zip"
-          exclusions: "/third-party /Source /.github /.vscode *.sln *.md .gitattributes .everestignore .gitignore"
+          exclusions: "/third-party /Source /.github /.vscode *.sln *.md .git* .everestignore"
       - name: Make Draft Release
         uses: ncipollo/release-action@v1
         with:
