@@ -25,6 +25,7 @@ namespace Celeste.Mod.CrowControl
         [SettingName(DialogIds.RequireUniqueUsers)] public bool RequireUniqueUsers { get; set; } = false;
         [SettingName(DialogIds.ClearSpawnsOnDeath)] public bool ClearSpawnsOnDeath { get; set; } = true;
         [SettingName(DialogIds.ReconnectOnDisconnect)] public bool ReconnectOnDisconnect { get; set; } = true;
+        [SettingName(DialogIds.RequireChatCommandPrefix)] public bool RequireCommandPrefixOnChat { get; set; } = false;
         [SettingName(DialogIds.ChannelName)] public string ChannelName { get; set; } = "";
         [SettingName(DialogIds.Connect)] public string Connect { get; set; } = "";
         [SettingName(DialogIds.Disconnect)] public string Disconnect { get; set; } = "";
@@ -132,16 +133,16 @@ namespace Celeste.Mod.CrowControl
         private Random rand = new Random();
 
         // better handle socket disconnections
-        public bool IsExiting = false;
-        private CancellationTokenSource cancelToken;
-        private bool clickedDisconnect = false;
+        [YamlIgnore] public bool IsExiting = false;
+        [YamlIgnore] private CancellationTokenSource cancelToken;
+        [YamlIgnore] private bool clickedDisconnect = false;
 
         [YamlIgnore] public Dictionary<MessageType, List<string>> currentVoteCounts = new Dictionary<MessageType, List<string>>();
 
         public CrowControlSettings() 
         {
             int randNum = rand.Next(10000, 99999);
-            TwitchUsername += randNum;
+            TwitchUsername += randNum.ToString();
 
             // Dynamically populate the dictionary.
             var MsgEnumVals = Enum.GetValues(typeof(MessageType)).Cast<MessageType>();
@@ -297,7 +298,7 @@ namespace Celeste.Mod.CrowControl
         {
             IrcParser parser = new IrcParser();
             IrcMessage msg = parser.ParseIrcMessage(e.Data);
-            ChatMessage chatMsg = new ChatMessage(TwitchUsername, msg);
+            ChatMessage chatMsg = new ChatMessage(TwitchUsername, msg, RequireCommandPrefixOnChat);
 
             if (msg.Command == IrcCommand.Ping) 
             {

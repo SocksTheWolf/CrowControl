@@ -16,6 +16,7 @@
         public const string Enabled = "CROWCONTROL_ENABLED";
         public const string ChannelName = "CROWCONTROL_CHANNELNAME";
         public const string ReconnectOnDisconnect = "RECONNECT_ON_DISCONNECT";
+        public const string RequireChatCommandPrefix = "REQUIRE_CHAT_COMMAND_PREFIX";
         public const string Connect = "CROWCONTROL_CONNECT";
         public const string Disconnect = "CROWCONTROL_DISCONNECT";
 

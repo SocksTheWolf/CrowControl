@@ -8,10 +8,12 @@ This is the same as original CrowControl with the following fixes:
 
 * Update version.
 * Update to the current API/SDK.
-* Update plugin layout layout.
+* Update plugin layout.
 * Requests properly count up.
 * Option: Commands can require unique user, allowing you to prevent the scenario of one user be able to spam `!die` a bunch of times.
 * Option: Spawned enemy AI is cleaned up properly on death.
+* Option: Chat commands can require an `!` or not. Does not apply to bits or channel point redemptions.
+  * When this is on, matches are only done if the command is the first thing in the message.
 * Fix `!die` to work properly when already dead.
 * Exit the application cleanly, when connected.
 * Fix high CPU usage (because of inf. loop).
