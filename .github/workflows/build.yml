@@ -53,7 +53,7 @@ jobs:
       with:
         type: "zip"
         filename: "CrowControl.zip"
-        exclusions: "/third-party /Source /.github /.vscode *.sln *.md .git* .everestignore"
+        exclusions: "/third-party/* /Source/* /lib-stripped/* *.git* *.sln *.md .everestignore *.zip"
     - name: Make Draft Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: ncipollo/release-action@v1
