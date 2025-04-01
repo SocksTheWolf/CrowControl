@@ -356,5 +356,6 @@ MigrationBackup/
 .idea
 
 /.vscode
+/.vs
 !/third-party/*.pdb
 /Source/lib-stripped
