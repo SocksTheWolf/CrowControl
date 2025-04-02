@@ -58,9 +58,8 @@ namespace Celeste.Mod.CrowControl
         /// <summary>Constructor for ChatMessage object.</summary>
         /// <param name="botUsername">The username of the bot that received the message.</param>
         /// <param name="ircMessage">The IRC message from Twitch to be processed.</param>
-        /// <param name="emoteCollection">The <see cref="MessageEmoteCollection"/> to register new emotes on and, if desired, use for emote replacement.</param>
-        /// <param name="replaceEmotes">Whether to replace emotes for this chat message. Defaults to false.</param>
-        public ChatMessage(string botUsername, IrcMessage ircMessage)
+        /// <param name="exclamationRequired">If messages require an explicit ! mark to trigger. Defaults to false.</param>
+        public ChatMessage(string botUsername, IrcMessage ircMessage, bool exclamationRequired=false)
         {
             BotUsername = botUsername;
             RawIrcMessage = ircMessage.ToString();
@@ -69,7 +68,8 @@ namespace Celeste.Mod.CrowControl
             Username = ircMessage.User;
             Channel = ircMessage.Channel;
 
-            CustomRewardMessageType = SetCustomMessageType(Message);
+            // this turns false if bits or channel point reward
+            bool useExclamation = exclamationRequired;
             CustomRewardParameter = SetCustomMessageParameter(Message);
 
             foreach (var tag in ircMessage.Tags.Keys)
@@ -106,6 +106,7 @@ namespace Celeste.Mod.CrowControl
                     case Tags.Bits:
                         Bits = int.Parse(tagValue);
                         BitsInDollars = ConvertBitsToUsd(Bits);
+                        useExclamation = false;
                         break;
                     case Tags.Color:
                         ColorHex = tagValue;
@@ -114,8 +115,8 @@ namespace Celeste.Mod.CrowControl
                         break;
                     case Tags.CustomRewardId:
                         IsCustomReward = true;
+                        useExclamation = false;
                         CustomRewardParameter = SetCustomMessageParameter(Message);
-                        CustomRewardMessageType = SetCustomMessageType(Message);
                         break;
                     case Tags.DisplayName:
                         DisplayName = tagValue;
@@ -169,6 +170,9 @@ namespace Celeste.Mod.CrowControl
                         break;
                 }
             }
+
+            // Parse the message type here, to make sure we respect commands properly.
+            CustomRewardMessageType = SetCustomMessageType(Message, useExclamation);
 
             if (Message.Length > 0 && (byte)Message[0] == 1 && (byte)Message[Message.Length - 1] == 1)
             {
@@ -279,100 +283,21 @@ namespace Celeste.Mod.CrowControl
             }
         }
 
-        private MessageType SetCustomMessageType(string message)
+        private MessageType SetCustomMessageType(string message, bool requiresExclamation = false)
         {
-
-            string command = "";
-
             var messageTypeValues = Enum.GetValues(typeof(MessageType));
-
             foreach (MessageType valueType in messageTypeValues) 
             {
                 string value = valueType.ToString();
+                if (requiresExclamation) 
+                {
+                    if (message.StartsWith("!"+value, StringComparison.OrdinalIgnoreCase))
+                        return valueType;
+                    continue;
+                }
 
                 if (message.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0) 
-                {
-                    command = value;
-                }
-            }
-
-            //decode parameter and command
-            if (command.IndexOf("die", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.DIE;
-            }
-            else if (command.IndexOf("blur", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.BLUR;
-            }
-            else if (command.IndexOf("bump", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.BUMP;
-            }
-            else if (command.IndexOf("seeker", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.SEEKER;
-            }
-            else if (command.IndexOf("mirror", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.MIRROR;
-            }
-            else if (command.IndexOf("kevin", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.KEVIN;
-            }
-            else if (command.IndexOf("disablegrab", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.DISABLEGRAB;
-            }
-            else if (command.IndexOf("invisible", StringComparison.OrdinalIgnoreCase) >= 0 || command.IndexOf("!invis", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.INVISIBLE;
-            }
-            else if (command.IndexOf("invert", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.INVERT;
-            }
-            else if (command.IndexOf("lowfriction", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.LOWFRICTION;
-            }
-            else if (command.IndexOf("oshiro", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.OSHIRO;
-            }
-            else if (command.IndexOf("snowball", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.SNOWBALL;
-            }
-            else if (command.IndexOf("doubledash", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.DOUBLEDASH;
-            }
-            else if (command.IndexOf("godmode", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.GODMODE;
-            }
-            else if (command.IndexOf("fish", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.FISH;
-            }
-            else if (command.IndexOf("wind", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.WIND;
-            }
-            else if (command.IndexOf("feather", StringComparison.OrdinalIgnoreCase) >= 0) 
-            {
-                return MessageType.FEATHER;
-            }
-            else if (command.IndexOf("archie", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return MessageType.ARCHIE;
-            }
-
-            if (command == "") 
-            {
-                return MessageType.NONE;
+                    return valueType;
             }
 
             return MessageType.NONE;
