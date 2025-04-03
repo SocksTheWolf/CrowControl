@@ -38,7 +38,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: CrowControl
-        retention-days: 10
+        retention-days: 20
         path: |
           everest.yaml
           bin
