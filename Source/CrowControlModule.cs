@@ -40,7 +40,13 @@ namespace Celeste.Mod.CrowControl
         private static MiniTextbox currentMiniTextBox;
 
         private ActionHelper actionHelper;
-        
+
+        // Keep track of all the people who voted for snowballs, seekers and oshiros so we can make sure
+        // that during votes, if the unique user spawns flag is on, we try to find someone that doesn't
+        // have a spawn yet.
+        private List<string> snowballVoters;
+        private List<string> seekerVoters;
+        private List<string> oshiroVoters;
 
         public CrowControlModule()
         {
@@ -50,14 +56,17 @@ namespace Celeste.Mod.CrowControl
         public override void Load()
         {
             if (!Enabled)
-            {
                 return;
-            }
 
             BirdyHelper = new BirdyHelper(Settings);
             timerHelper = new TimerHelper();
             spawnHelper = new SpawnHelper();
             actionHelper = new ActionHelper(timerHelper, spawnHelper);
+
+            // Allocate lists
+            snowballVoters = new List<string>();
+            seekerVoters = new List<string>();
+            oshiroVoters = new List<string>();
 
             effectTime = Settings.EffectTime;
 
@@ -95,18 +104,6 @@ namespace Celeste.Mod.CrowControl
             else 
             {
                 twoDashesOnSpawn = false;
-            }
-
-            foreach (Seeker seeker in spawnHelper.spawnedSeekers) 
-            {
-                SeekerName nameObj = seeker.Get<SeekerName>();
-                nameObj.Name = null;
-            }
-
-            foreach (Snowball seeker in spawnHelper.spawnedSnowballs)
-            {
-                SnowballName nameObj = seeker.Get<SnowballName>();
-                nameObj.Name = null;
             }
 
             return orig(self, direction, evenIfInvincible, registerDeathInStats);
@@ -227,16 +224,9 @@ namespace Celeste.Mod.CrowControl
             }
         }
 
-        private void ClearAllSpawns() 
-        {
-            spawnHelper.spawnedSeekers.Clear();
-            spawnHelper.spawnedSnowballs.Clear();
-            spawnHelper.spawnedOshiros.Clear();
-        }
-
         private void Level_NextLevel(On.Celeste.Level.orig_NextLevel orig, Level self, Vector2 at, Vector2 dir)
         {
-            ClearAllSpawns();
+            spawnHelper.ClearAllSpawnLists();
             DisableWind();
 
             ascending = false;
@@ -263,14 +253,32 @@ namespace Celeste.Mod.CrowControl
         {
             if (Settings.ClearSpawnsOnDeath)
             {
-                // This may not be totally absolutely necessary, but should clean up any excess memory.
-                // I'm not sure how celeste handles death.
                 spawnHelper.ClearSeekers();
                 spawnHelper.ClearSnowballs();
                 spawnHelper.ClearOshiros();
             }
             else
             {
+                // Note: This code block will create a never-ending spawn of spawned elements
+                // until you beat the level or restart.
+                foreach (Seeker seeker in spawnHelper.spawnedSeekers) 
+                {
+                    CrowControlName nameObj = seeker.Get<CrowControlName>();
+                    nameObj.Name = null;
+                }
+
+                foreach (Snowball seeker in spawnHelper.spawnedSnowballs)
+                {
+                    CrowControlName nameObj = seeker.Get<CrowControlName>();
+                    nameObj.Name = null;
+                }
+
+                foreach (AngryOshiro oshiro in spawnHelper.spawnedOshiros)
+                {
+                    CrowControlName nameObj = oshiro.Get<CrowControlName>();
+                    nameObj.Name = null;
+                }
+
                 if (spawnHelper.spawnedSeekers.Count >= 1)
                 {
                     seekerSpawnTimer.Stop();
@@ -284,7 +292,7 @@ namespace Celeste.Mod.CrowControl
 
                 if (spawnHelper.spawnedOshiros.Count >= 1) 
                 {
-                    spawnHelper.SpawnOshiro(false);
+                    spawnHelper.SpawnOshiro(false, null);
                 }
             }
 
@@ -349,11 +357,10 @@ namespace Celeste.Mod.CrowControl
             {
                 foreach (Seeker seeker in spawnHelper.spawnedSeekers)
                 {
-                    SeekerName nameObj = seeker.Get<SeekerName>();
+                    CrowControlName nameObj = seeker.Get<CrowControlName>();
                     if (nameObj.Name != null)
                     {
                         string name = nameObj.Name;
-
                         DrawTextOverObject(name, seeker.Position);
                     }
                 }
@@ -363,11 +370,10 @@ namespace Celeste.Mod.CrowControl
             {
                 foreach (Snowball snowball in spawnHelper.spawnedSnowballs) 
                 {
-                    SnowballName nameObj = snowball.Get<SnowballName>();
+                    CrowControlName nameObj = snowball.Get<CrowControlName>();
                     if (nameObj.Name != null) 
                     {
                         string name = nameObj.Name;
-
                         DrawTextOverObject(name, snowball.Position);
                     }
                 }
@@ -515,7 +521,6 @@ namespace Celeste.Mod.CrowControl
             orig(self, scene);
         }
 
-        //Disable enabled to stop the webhook thread
         static private void Engine_OnExiting(Engine.orig_OnExiting orig, Monocle.Engine self, object sender, EventArgs args)
         {
             Settings.ReconnectOnDisconnect = false;
@@ -560,20 +565,56 @@ namespace Celeste.Mod.CrowControl
             return winner;
         }
 
+        // Handles the rules and instructions for spawning things such as Seeker, Snowball and Oshiro
+        private void HandleEnemySpawn(string inUsername, MessageType messageType, ref List<string> currentVoteCounts, ref List<string> voters, int voteLimit, bool enforceActiveSpawn)
+        {
+            bool moreThanOne = voteLimit > 1;
+            if (currentVoteCounts.Count >= voteLimit)
+            {
+                string userName = (moreThanOne && enforceActiveSpawn) ? actionHelper.GetUniqueUserForSpawnAction(messageType, voters) : inUsername;
+                if (!string.IsNullOrEmpty(userName))
+                {
+                    switch (messageType)
+                    {
+                        case MessageType.SEEKER:
+                            actionHelper.SeekerAction(userName, enforceActiveSpawn);
+                        break;
+                        case MessageType.SNOWBALL:
+                            actionHelper.SnowballAction(userName, enforceActiveSpawn);
+                        break;
+                        case MessageType.OSHIRO:
+                            actionHelper.OshiroAction(userName, enforceActiveSpawn);
+                        break;
+                        default:
+                            return;
+                    }
+                }
+                currentVoteCounts.Clear();
+
+                if (moreThanOne)
+                    voters.Clear();
+            }
+            else if (moreThanOne)
+            {
+                // If we need more than one user, and we're enforcing active spawns and the user already has a spawn
+                // remove their vote, otherwise add them to the list.
+                if (enforceActiveSpawn && actionHelper.DoesUserHaveUniqueSpawn(messageType, inUsername))
+                    currentVoteCounts.RemoveAt(currentVoteCounts.Count - 1);
+                else
+                    voters.Add(inUsername);
+            }
+        }
+
+        // channel points and chat messages
         public void OnCustomRewardMessage(ChatMessage msg)
         {
-            MessageType messageType = msg.CustomRewardMessageType;
-
             if (disableCommands) 
-            {
                 return;
-            }
 
             if (!Settings.Enabled) 
-            {
                 return;
-            }
 
+            MessageType messageType = msg.CustomRewardMessageType;            
             if (CheckIfMessageTypeEnabled(messageType))
             {
                 Settings.TotalRequests++;
@@ -583,6 +624,10 @@ namespace Celeste.Mod.CrowControl
                         return;
                     }
                 }
+
+                // Unique spawns should only be enforced if this is not a custom reward.
+                bool enforceActiveSpawn = !msg.IsCustomReward && Settings.OnlyOneActiveSpawnPerUser;
+
                 currentVoteCounts.Add(msg.UserId);
                 switch (messageType)
                 {
@@ -616,11 +661,7 @@ namespace Celeste.Mod.CrowControl
                         }
                         break;
                     case MessageType.SEEKER:
-                        if (currentVoteCounts.Count >= Settings.SeekerVoteLimit)
-                        {
-                            actionHelper.SeekerAction(msg.Username);
-                            currentVoteCounts.Clear();
-                        }
+                        HandleEnemySpawn(msg.Username, messageType, ref currentVoteCounts, ref seekerVoters, Settings.SeekerVoteLimit, enforceActiveSpawn);
                         break;
                     case MessageType.MIRROR:
                         if (currentVoteCounts.Count >= Settings.MirrorVoteLimit)
@@ -665,18 +706,10 @@ namespace Celeste.Mod.CrowControl
                         }
                         break;
                     case MessageType.OSHIRO:
-                        if (currentVoteCounts.Count >= Settings.OshiroVoteLimit)
-                        {
-                            actionHelper.OshiroAction();
-                            currentVoteCounts.Clear();
-                        }
+                        HandleEnemySpawn(msg.Username, messageType, ref currentVoteCounts, ref oshiroVoters, Settings.OshiroVoteLimit, enforceActiveSpawn);
                         break;
                     case MessageType.SNOWBALL:
-                        if (currentVoteCounts.Count >= Settings.SnowballVoteLimit)
-                        {
-                            actionHelper.SnowballAction(msg.Username);
-                            currentVoteCounts.Clear();
-                        }
+                        HandleEnemySpawn(msg.Username, messageType, ref currentVoteCounts, ref snowballVoters, Settings.SnowballVoteLimit, enforceActiveSpawn);  
                         break;
                     case MessageType.DOUBLEDASH:
                         if (currentVoteCounts.Count >= Settings.DoubleDashVoteLimit)
@@ -761,7 +794,7 @@ namespace Celeste.Mod.CrowControl
                         actionHelper.LowFrictionAction();
                         break;
                     case MessageType.OSHIRO:
-                        actionHelper.OshiroAction();
+                        actionHelper.OshiroAction(msg.Username);
                         break;
                     case MessageType.SNOWBALL:
                         actionHelper.SnowballAction(msg.Username);

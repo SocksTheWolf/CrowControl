@@ -35,11 +35,48 @@ namespace Celeste.Mod.CrowControl
             this.currentLevel = currentLevel;
         }
 
+        public string GetUniqueUserForSpawnAction(MessageType type, List<string> names)
+        {
+            // This is, technically terrible if clear spawns on death is off.
+            // The reason being is that over time, the spawned list will
+            // get very large, and this will potentially slow down.
+            switch (type)
+            {
+                case MessageType.SEEKER:
+                    return names.Where(user => SpawnHelper.spawnedSeekers.All((seeker) => {
+                        return seeker.Get<CrowControlName>().Name != user;
+                    })).FirstOrDefault<string>(string.Empty);
+                case MessageType.SNOWBALL:
+                    return names.Where(user => SpawnHelper.spawnedSnowballs.All((snow) => {
+                        return snow.Get<CrowControlName>().Name != user;
+                    })).FirstOrDefault<string>(string.Empty);
+                case MessageType.OSHIRO:
+                    return names.Where(user => SpawnHelper.spawnedOshiros.All((oshiro) => {
+                        return oshiro.Get<CrowControlName>().Name != user;
+                    })).FirstOrDefault<string>(string.Empty);
+            }
+            return string.Empty;
+        }
+
+        public bool DoesUserHaveUniqueSpawn(MessageType type, string user)
+        {
+            switch (type)
+            {
+                case MessageType.SEEKER:
+                    return SpawnHelper.DoesUserHaveSeeker(user);
+                case MessageType.SNOWBALL:
+                    return SpawnHelper.DoesUserHaveSnowball(user);
+                case MessageType.OSHIRO:
+                    return SpawnHelper.DoesUserHaveOshiro(user);
+            }
+            return false;
+        }
+
         public void DieAction()
         {
-            Module.BirdyHelper.BirdCaw();
             if (!ply.Dead && !currentLevel.Transitioning)
             {
+                Module.BirdyHelper.BirdCaw();
                 ply.Die(Vector2.Zero);
             }
         }
@@ -59,11 +96,10 @@ namespace Celeste.Mod.CrowControl
             SpawnHelper.SpawnBumper();
         }
 
-        public void SeekerAction(string name)
+        public void SeekerAction(string name, bool checkUniques=false)
         {
-            Module.BirdyHelper.BirdCaw();
-
-            SpawnHelper.SpawnSeeker(true, name);
+            if (SpawnHelper.SpawnSeeker(true, name, checkUniques))
+                Module.BirdyHelper.BirdCaw();
         }
 
         public void MirrorAction()
@@ -76,11 +112,11 @@ namespace Celeste.Mod.CrowControl
 
         public void KevinAction()
         {
-            Module.BirdyHelper.BirdCaw();
             if (currentLevel != null && !currentLevel.Transitioning)
             {
                 if (ply != null)
                 {
+                    Module.BirdyHelper.BirdCaw();
                     Module.spawnKevin = true;
                 }
             }
@@ -118,26 +154,23 @@ namespace Celeste.Mod.CrowControl
             TimerHelper.lowFrictionTimer.Start();
         }
 
-        public void OshiroAction()
+        public void OshiroAction(string userName, bool checkUniques=false)
         {
-            Module.BirdyHelper.BirdCaw();
-
-            SpawnHelper.SpawnOshiro(true);
+            if (SpawnHelper.SpawnOshiro(true, userName, checkUniques))
+                Module.BirdyHelper.BirdCaw();
         }
 
-        public void SnowballAction(string name)
+        public void SnowballAction(string name, bool checkUniques=false)
         {
-            Module.BirdyHelper.BirdCaw();
-
-            SpawnHelper.SpawnSnowball(true, name);
+            if (SpawnHelper.SpawnSnowball(true, name, checkUniques))
+                Module.BirdyHelper.BirdCaw();
         }
 
         public void DoubleDashAction()
         {
-            Module.BirdyHelper.BirdCaw();
-
             if (ply != null)
             {
+                Module.BirdyHelper.BirdCaw();
                 ply.Dashes = 2;
                 Audio.Play("event:/new_content/game/10_farewell/pinkdiamond_touch");
             }
@@ -153,9 +186,8 @@ namespace Celeste.Mod.CrowControl
 
         public void FishAction() 
         {
-            Module.BirdyHelper.BirdCaw();
-
-            SpawnHelper.SpawnFish();
+            if (SpawnHelper.SpawnFish())
+                Module.BirdyHelper.BirdCaw();
         }
 
         public void WindAction(string parameter) 
