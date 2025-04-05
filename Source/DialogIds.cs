@@ -12,6 +12,7 @@
         public const string EffectTime = "CROWCONTROL_EFFECT_TIME";
         public const string MuteCrowSounds = "CROWCONTROL_MUTE_CROW_SOUNDS";
         public const string RequireUniqueUsers = "CROWCONTROL_REQUIRE_UNIQUE_USERS";
+        public const string OneActiveSpawnPerUser = "CROWCONTROL_ONE_ACTIVE_SPAWN_PER_USER";
         public const string ClearSpawnsOnDeath = "CROWCONTROL_CLEAR_SPAWNS_ON_DEATH";
         public const string Enabled = "CROWCONTROL_ENABLED";
         public const string ChannelName = "CROWCONTROL_CHANNELNAME";

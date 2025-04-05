@@ -26,6 +26,7 @@ namespace Celeste.Mod.CrowControl
         [SettingName(DialogIds.ClearSpawnsOnDeath)] public bool ClearSpawnsOnDeath { get; set; } = true;
         [SettingName(DialogIds.ReconnectOnDisconnect)] public bool ReconnectOnDisconnect { get; set; } = true;
         [SettingName(DialogIds.RequireChatCommandPrefix)] public bool RequireCommandPrefixOnChat { get; set; } = false;
+        [SettingName(DialogIds.OneActiveSpawnPerUser)] public bool OnlyOneActiveSpawnPerUser { get; set; } = false;
         [SettingName(DialogIds.ChannelName)] public string ChannelName { get; set; } = "";
         [SettingName(DialogIds.Connect)] public string Connect { get; set; } = "";
         [SettingName(DialogIds.Disconnect)] public string Disconnect { get; set; } = "";
