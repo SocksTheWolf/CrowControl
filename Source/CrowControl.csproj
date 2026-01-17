@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <AssemblyName>CrowControl</AssemblyName>
         <RootNamespace>Celeste.Mod.CrowControl</RootNamespace>
         <LangVersion>latest</LangVersion>
@@ -56,9 +56,7 @@
     </PropertyGroup>
 
     <!-- Inline task used to create a .zip for the mod -->
-    <UsingTask TaskName="PackageMod"
-               TaskFactory="RoslynCodeTaskFactory"
-               AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll" >
+    <UsingTask TaskName="PackageMod" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
         <ParameterGroup>
             <Files ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
             <OutputPath ParameterType="System.String" Required="true" />

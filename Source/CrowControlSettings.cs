@@ -218,7 +218,7 @@ namespace Celeste.Mod.CrowControl
 
         public void StartWebSocket()
         {
-            using (var ws = new WebSocket("ws://irc-ws.chat.twitch.tv:80"))
+            using (var ws = new WebSocket("wss://irc-ws.chat.twitch.tv:443"))
             {
                 ws.Compression = CompressionMethod.None;
 
