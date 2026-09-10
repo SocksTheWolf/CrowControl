@@ -16,16 +16,17 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+    - name: Checkout files
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
 
-    - name: Download Everest stripped lib
+    - name: Download EverestAPI stripped lib
       uses: robinraju/release-downloader@28fc21f50d76778e7023361aa1f863e717d3d56f
       with:
         repository: EverestAPI/Everest
         latest: true
         fileName: lib-stripped.zip
 
-    - name: Extract lib-stripped.zip
+    - name: Extract Stripped Lib
       run: unzip lib-stripped.zip
 
     - name: Setup .NET Core
